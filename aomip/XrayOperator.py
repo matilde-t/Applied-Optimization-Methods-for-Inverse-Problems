@@ -96,7 +96,8 @@ class XrayOperator(LinearOperator):
             np.ones(self.ndim) if vol_spacing is None else np.array(vol_spacing)
         )
         self.sino_spacing = (
-            np.ones(self.ndim) if sino_spacing is None else np.array(sino_spacing)
+            np.ones(self.ndim) if sino_spacing is None else np.array(
+                sino_spacing)
         )
         self.cor_offset = (
             np.zeros(self.ndim) if cor_offset is None else np.array(cor_offset)
@@ -126,7 +127,8 @@ class XrayOperator(LinearOperator):
                 f"Array containing principal point offset is of the wrong size (is {self.pp_offset.size}, expected {self.ndim - 1})"
             )
 
-        self.vol_descriptor = elsa.VolumeDescriptor(self.vol_shape, self.vol_spacing)
+        self.vol_descriptor = elsa.VolumeDescriptor(
+            self.vol_shape, self.vol_spacing)
         self.sino_descriptor = elsa.CircleTrajectoryGenerator.trajectoryFromAngles(
             thetas,
             self.vol_descriptor,
@@ -144,16 +146,19 @@ class XrayOperator(LinearOperator):
                     self.vol_descriptor, self.sino_descriptor
                 )
             else:
-                self.A = elsa.JosephsMethod(self.vol_descriptor, self.sino_descriptor)
+                self.A = elsa.JosephsMethod(
+                    self.vol_descriptor, self.sino_descriptor)
         elif projection_method == "siddons":
             if elsa.cudaProjectorsEnabled():
                 self.A = elsa.SiddonsMethodCUDA(
                     self.vol_descriptor, self.sino_descriptor
                 )
             else:
-                self.A = elsa.SiddonsMethod(self.vol_descriptor, self.sino_descriptor)
+                self.A = elsa.SiddonsMethod(
+                    self.vol_descriptor, self.sino_descriptor)
         else:
-            raise RuntimeError(f"Unknown projection method '{projection_method}'")
+            raise RuntimeError(
+                f"Unknown projection method '{projection_method}'")
 
         M = np.prod(sino_shape) * np.size(thetas)  # number of rows
         N = np.prod(vol_shape)  # number of columns
