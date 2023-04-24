@@ -96,7 +96,7 @@ class XrayOperator(LinearOperator):
             np.ones(self.ndim) if vol_spacing is None else np.array(vol_spacing)
         )
         self.sino_spacing = (
-            np.ones(self.ndim) if sino_spacing is None else np.array(
+            np.ones(self.ndim - 1) if sino_spacing is None else np.array(
                 sino_spacing)
         )
         self.cor_offset = (
@@ -213,6 +213,10 @@ def radon(
     projection_method="josephs",
     dtype="float32",
 ):
+    """Forward project x into Radon space
+
+    For details on the arguments see the `XrayOperator`
+    """
     x = np.array(x)
 
     A = XrayOperator(

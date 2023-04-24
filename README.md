@@ -11,9 +11,8 @@ The course website can be found [here](https://ciip.in.tum.de/teaching/aom-ip_ss
 #### Poetry
 
 The easiest and recommended way to install is using `poetry` (see
-[here](https://python-poetry.org/)). Once you've installed `poetry`, you
-run `poetry install` from the root directory, which will install most of the
-necessary dependencies.
+[here](https://python-poetry.org/)). Once you've installed `poetry`, 
+run `poetry install` from the root directory.
 
 Next, we miss the dependency on `elsa` (see
 [here](https://gitlab.lrz.de/IP/elsa)), our tool for tomographic
@@ -22,18 +21,25 @@ environment created by `poetry`, then clone `elsa` to a new directory,
 move into the directory and run `pip install . --verbose` (the `--verbose` is
 optional, but then you'll see the progress).
 
+From now you can either active the virtual environment by running `poetry shell`,
+or you run `poetry run python myscript`, which will active the environment for
+that single command.
+
 #### Classic
 
-However, if you do not want to use `poetry`, you can use the usual python way,
-of creating a virtual environment, install the required packages (check the
-`pyproject.toml`) into the virtual environment. Then again, you need to
-activate it, and install `elsa` as with `peotry`.
+If you do not want to use `poetry`, you can use virtual environments.
+From the root directory of this repository run `python -m venv /path/to/venv`, active
+it using `source /path/to/venv/bin/activate`, and then install everything with
+`pip install --editable .` (from the root directory).
+
+Then again you need to install `elsa`. Follow the steps described above in
+the `poetry` section.
 
 ### Troubleshooting
 
 If you have trouble installing `elsa` (how can that happen :D), see the README
 of `elsa`. If you use an Ubuntu based distro and want to use CUDA, you might
-need to additionally set `CUDA_HOME`, to wherever CUDA is installed.
+need to set `CUDA_HOME`, to wherever CUDA is installed.
 
 Please note, that you do not need CUDA, but it might speed up your
 reconstructions quite dramatically.
@@ -58,7 +64,7 @@ do not block all GPU's all the time! Check which GPU's are currently free
 using `nvidia-smi`, and then use `CUDA_VISIBLE_DEVICES=id` to only
 use one (and not the first).
 
-## Getting the data for the Helsink Tomography Challenge
+## Getting the data for the Helsinki Tomography Challenge
 
 To get the dataset for the challenge, head over to
 [Zenodo](https://doi.org/10.5281/zenodo.7418878) and download the
