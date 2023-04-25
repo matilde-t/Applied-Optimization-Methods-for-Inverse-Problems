@@ -96,8 +96,7 @@ class XrayOperator(LinearOperator):
             np.ones(self.ndim) if vol_spacing is None else np.array(vol_spacing)
         )
         self.sino_spacing = (
-            np.ones(self.ndim - 1) if sino_spacing is None else np.array(
-                sino_spacing)
+            np.ones(self.ndim - 1) if sino_spacing is None else np.array(sino_spacing)
         )
         self.cor_offset = (
             np.zeros(self.ndim) if cor_offset is None else np.array(cor_offset)
@@ -127,8 +126,7 @@ class XrayOperator(LinearOperator):
                 f"Array containing principal point offset is of the wrong size (is {self.pp_offset.size}, expected {self.ndim - 1})"
             )
 
-        self.vol_descriptor = elsa.VolumeDescriptor(
-            self.vol_shape, self.vol_spacing)
+        self.vol_descriptor = elsa.VolumeDescriptor(self.vol_shape, self.vol_spacing)
         self.sino_descriptor = elsa.CircleTrajectoryGenerator.trajectoryFromAngles(
             thetas,
             self.vol_descriptor,
@@ -146,19 +144,16 @@ class XrayOperator(LinearOperator):
                     self.vol_descriptor, self.sino_descriptor
                 )
             else:
-                self.A = elsa.JosephsMethod(
-                    self.vol_descriptor, self.sino_descriptor)
+                self.A = elsa.JosephsMethod(self.vol_descriptor, self.sino_descriptor)
         elif projection_method == "siddons":
             if elsa.cudaProjectorsEnabled():
                 self.A = elsa.SiddonsMethodCUDA(
                     self.vol_descriptor, self.sino_descriptor
                 )
             else:
-                self.A = elsa.SiddonsMethod(
-                    self.vol_descriptor, self.sino_descriptor)
+                self.A = elsa.SiddonsMethod(self.vol_descriptor, self.sino_descriptor)
         else:
-            raise RuntimeError(
-                f"Unknown projection method '{projection_method}'")
+            raise RuntimeError(f"Unknown projection method '{projection_method}'")
 
         M = np.prod(sino_shape) * np.size(thetas)  # number of rows
         N = np.prod(vol_shape)  # number of columns
@@ -168,31 +163,65 @@ class XrayOperator(LinearOperator):
 
         super().__init__(self.dtype, self.shape)
 
-    def _matvec(self, x):
+    def apply(self, x):
+        """Apply the forward projection to x
+
+        Perform or simulate the forward projection given the specified parameters.
+
+        Parameters
+        ----------
+        x : :obj:`np.ndarray`
+            Object to forward project
+        """
         # copy/move numpy array to elsa
-        ex = elsa.DataContainer(x, self.vol_descriptor)
+        ex = elsa.DataContainer(np.reshape(x, self.vol_shape, order="C"), self.vol_descriptor)
 
         # perform forward projection
         sino = self.A.apply(ex)
 
         # return a numpy array
-        return np.array(sino)
+        return np.array(sino) 
+
+    def applyAdjoint(self, sino):
+        """Apply the back projection to sino
+
+        Perform or simulate the back projection given the specified parameters.
+
+        The returned array is a 1D-vector containing the backprojection, which
+        can be recreated using `backprojection.reshape(shape, order="F")`. Where
+        shape the volume/image size.
+
+        Parameters
+        ----------
+        sino : :obj:`np.ndarray`
+            Sinogram to back project
+        """
+        # copy/move sinogram to elsa
+        shape = np.concatenate((self.sino_shape, np.array([np.size(self.thetas)])))
+        esino = elsa.DataContainer(
+            np.reshape(sino, shape, order="C"), self.sino_descriptor
+        )
+
+        # perform backward projection
+        bp = self.A.applyAdjoint(esino)
+
+        # return a numpy array
+        return np.array(bp) / len(self.thetas)
+
+    def _matvec(self, x):
+        """Perform the forward projection, implement the scipy.LinearOperator interface"""
+        return self.apply(x).flatten("C")
 
     def _adjoint(self):
+        """Return the adjoint, implement the scipy.LinearOperator interface"""
+
         class AdjointXrayOperator(LinearOperator):
             def __init__(self, forward):
                 self.forward = forward
                 super().__init__(self.forward.dtype, np.flip(self.forward.shape))
 
             def _matvec(self, sino):
-                # copy/move sinogram to elsa
-                esino = elsa.DataContainer(sino, self.forward.sino_descriptor)
-
-                # perform backward projection
-                bp = self.forward.A.applyAdjoint(esino)
-
-                # return a numpy array
-                return np.array(bp)
+                return self.forward.applyAdjoint(sino).flatten("C")
 
             def _adjoint(self):
                 return self.forward
