@@ -25,3 +25,9 @@ I implemented this tool in the `Binning.py` file and tested it in `hw01.py`, fir
 ![Binning on random arrays test](binningRandom.png "Binning on random arrays test")
 
 ![Binning on a 2D image test](binningImage.png "Binning on a 2D image test")
+
+### v) Center of rotation correction
+
+I implemented this function in the `CenterOfRotationCorrection.py` file. I tested it on the same image as point iv) and it seems to work fine.
+
+![Center of rotation correction test](centerOfRotationCorrection.png "Center of rotation correction test")

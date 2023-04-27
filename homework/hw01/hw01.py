@@ -1,4 +1,4 @@
-from aomip import flatFieldCorrection, binning
+from aomip import flatFieldCorrection, binning, centerOfRotationCorrection
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import os
@@ -69,6 +69,33 @@ def test_binning():
     plt.show()
     return
 
+def test_centerOfRotationCorrection():
+    cwd=os.getcwd()
+    image = mpimg.imread(cwd+"/homework/hw01/tubeV1/scan_000006.tif")
+    image_20_0 = centerOfRotationCorrection(image, 20, 0)
+    image_200_0 = centerOfRotationCorrection(image, 200, 0)
+    image_20_1 = centerOfRotationCorrection(image, 20, 1)
+    image_200_1 = centerOfRotationCorrection(image, 200, 1)
+    fig, ax = plt.subplots(2, 3)
+    fig.suptitle("Center of rotation correction")
+    ax[0][0].imshow(image, cmap="gray")
+    ax[0][0].set_title("Original image")
+    ax[0][1].imshow(image_20_0, cmap="gray")
+    ax[0][1].set_title("20px offset, axis 0")
+    ax[0][2].imshow(image_200_0, cmap="gray")
+    ax[0][2].set_title("200px offset, axis 0")
+    ax[1][0].imshow(image, cmap="gray")
+    ax[1][0].set_title("Original image")
+    ax[1][1].imshow(image_20_1, cmap="gray")
+    ax[1][1].set_title("20px offset, axis 1")
+    ax[1][2].imshow(image_200_1, cmap="gray")
+    ax[1][2].set_title("200px offset, axis 1")
+    plt.tight_layout()
+    plt.savefig(cwd+"/homework/hw01/centerOfRotationCorrection.png")
+    plt.show()
+    return
+
 if __name__ == "__main__":
     test_flatFieldCorrection()
     test_binning()
+    test_centerOfRotationCorrection()
