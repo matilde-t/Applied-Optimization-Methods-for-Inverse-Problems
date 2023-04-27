@@ -1,5 +1,5 @@
 def flatFieldCorrection(measurements, dark_frame, flat_field):
-    """Flat field correction
+    """Flat-field correction
 
     Correct the image using the formula 
     (measurements - dark_frame) / (flat_field - dark_frame)
