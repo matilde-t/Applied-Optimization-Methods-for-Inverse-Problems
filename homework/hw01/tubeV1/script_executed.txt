@@ -1,0 +1,49 @@
+tube	set kV	40		ACK			0	
+tube	set power	12		ACK			0	
+camera	set exposure	80.000000		ACK			52	80.000000
+rot_obj	move absolute	0.000000		ACK			43	
+mag_obj	move absolute	53.000000		ACK			82	
+mag_det	move absolute	160.00000		ACK			80	
+tra_det	move absolute	-24.000000		ACK			87	
+tra_obj	move absolute	0.4995		ACK			86	
+tra_tube	move absolute	0.000000		ACK			86	
+ver_tube	move absolute	164.9202		ACK			1192	
+ver_det	move absolute	115.0002		ACK			2333	
+scanner	set output path	F:\henri\MLWalnuts\Walnut4\tubeV1		ACK			0	
+scanner	set sample info	scan_name		ACK			1	
+tra_obj	move absolute	-150.000000		POS			2830	
+tube	xrayoff			ACK			112	
+scanner	pause	2000.000000		ACK			2000	
+camera	take image			ACK			341	
+camera	set number of averages	50		ACK			29	50
+camera	take image			ACK			4518	
+camera	save image	F:\henri\MLWalnuts\Walnut4\tubeV1\di000000.tif		ACK		4000.000000	24	
+camera	set number of averages	1		ACK			28	1
+tube	xrayon			ACK			236	
+tube	REPEAT UNTIL TRUE status_XReady_get			ACK			3531	TRUE
+tra_obj	move absolute	-150.000000		POS			67	
+scanner	pause	2000.000000		ACK			2001	
+camera	take image			ACK			346	
+camera	set number of averages	50		ACK			24	50
+camera	take image			ACK			4434	
+camera	save image	F:\henri\MLWalnuts\Walnut4\tubeV1\io000000.tif		ACK		4000.000000	29	
+tra_obj	move absolute	0.4995		POS			2586	
+camera	set number of averages	1		ACK			24	1
+rot_obj	set speed	45.000000		ACK			25	45.000000
+rot_obj	move absolute	-1.512500		ACK			409	
+rot_obj	set speed	3.750000		ACK			32	3.749980
+rot_obj	set acceleration	22.500000		ACK			25	22.500000
+camera	set number of frames	1201		ACK			26	1201
+camera	set number of averages	1		ACK			32	1
+scanner	pause	2000.000000		ACK			2000	
+rot_obj	move absolute	361.512500	0.000000	POS			505	POS -0.040698 0.018293
+camera	take and save image sequence	F:\henri\MLWalnuts\Walnut4\tubeV1\scan_		ACK		96000.000000	97695	F:\henri\MLWalnuts\Walnut4\tubeV1\scan_
+tra_obj	move absolute	-150.000000		POS			2573	
+scanner	pause	2000.000000		ACK			2000	
+camera	take image			ACK			376	
+camera	set number of averages	50		ACK			17	50
+camera	take image			ACK			4424	
+camera	save image	F:\henri\MLWalnuts\Walnut4\tubeV1\io000001.tif		ACK		4000.000000	23	
+tra_obj	move absolute	0.4995		POS			2587	
+camera	set number of averages	1		ACK			21	1
+scanner	write settings file						11	

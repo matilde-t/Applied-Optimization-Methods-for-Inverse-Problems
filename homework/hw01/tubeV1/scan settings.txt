@@ -1,0 +1,114 @@
+ScanID : 180904_006
+BatchID : 
+Project : Electronics
+START
+date: 04/09/2018; time: 16:12:07
+
+STOP
+date: 04/09/2018; time: 16:14:39
+
+SCAN DURATION : 3 minutes
+VC : 85.019962
+HC : 468.000000
+SDD : 199.006188
+SOD : 66.001402
+Voxel size : 49.615592
+Magnification : 3.015181
+
+Operator : henri
+Sample name : 
+Sample owner : 
+Application area : 
+Sample size : 0.000000 mm
+Comment : 
+
+
+X-ray tube : xraysource
+Tube voltage : 40.000000
+Tube power : 12.000000
+Vacuum level : 
+Filter : 
+Focus mode : microfocus
+Target current : 0.000000
+Filament status : 
+Filament mode : 
+Output mode : Target power
+
+Camera : detector
+Exposure time (ms) : 80.000000
+Number of averages : 1.000000
+Original pixel size : 0.074800
+Imaging mode : HW2SW1High
+Binning value : 2
+Binned pixel size : 0.149600
+ROI (LTRB) : 0,0,1943,1535
+
+rot_obj : 361.512500 ; speed :3.749980 : 22.500000
+ver_obj : 215.079803 ; speed :37.500000 : 125.000000
+ver_tube : 164.920200 ; speed :37.500000 : 125.000000
+ver_det : 115.000200 ; speed :37.500000 : 125.000000
+mag_obj : 53.000000 ; speed :50.000000 : 80.000000
+mag_det : 160.000000 ; speed :50.000000 : 80.000000
+tra_det : -24.000000 ; speed :50.000000 : 80.000000
+tra_obj : 0.499500 ; speed :100.000000 : 100.000000
+tra_tube : 0.000000 ; speed :20.000000 : 50.000000
+PI_X : 0.998096 ; speed :10.000000 : 5.000000
+PI_Y : -0.002356 ; speed :10.000000 : 5.000000
+
+ScanID : 180904_003
+BatchID : 
+Project : Electronics
+START
+date: 04/09/2018; time: 15:58:33
+
+STOP
+date: 04/09/2018; time: 16:01:39
+
+SCAN DURATION : 3 minutes
+VC : 85.019962
+HC : 468.000000
+SDD : 199.006188
+SOD : 66.001402
+Voxel size : 49.615592
+Magnification : 3.015181
+
+Operator : henri
+Sample name : 
+Sample owner : 
+Application area : 
+Sample size : 0.000000 mm
+Comment : 
+
+
+X-ray tube : xraysource
+Tube voltage : 40.000000
+Tube power : 12.000000
+Vacuum level : 
+Filter : 
+Focus mode : microfocus
+Target current : 0.000000
+Filament status : 
+Filament mode : 
+Output mode : Target power
+
+Camera : detector
+Exposure time (ms) : 80.000000
+Number of averages : 1.000000
+Original pixel size : 0.074800
+Imaging mode : HW2SW1High
+Binning value : 2
+Binned pixel size : 0.149600
+ROI (LTRB) : 0,0,1943,1535
+
+rot_obj : 361.512500 ; speed :3.749980 : 22.500000
+ver_obj : 215.079803 ; speed :37.500000 : 125.000000
+ver_tube : 164.920200 ; speed :37.500000 : 125.000000
+ver_det : 115.000200 ; speed :37.500000 : 125.000000
+mag_obj : 53.000000 ; speed :50.000000 : 80.000000
+mag_det : 160.000000 ; speed :50.000000 : 80.000000
+tra_det : -24.000000 ; speed :50.000000 : 80.000000
+tra_obj : 0.499500 ; speed :100.000000 : 100.000000
+tra_tube : 0.000000 ; speed :20.000000 : 50.000000
+PI_X : 0.998096 ; speed :10.000000 : 5.000000
+PI_Y : -0.002355 ; speed :10.000000 : 5.000000
+
