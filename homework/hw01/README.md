@@ -31,3 +31,9 @@ I implemented this tool in the `Binning.py` file and tested it in `hw01.py`, fir
 I implemented this function in the `CenterOfRotationCorrection.py` file. I tested it on the same image as point iv) and it seems to work fine.
 
 ![Center of rotation correction test](centerOfRotationCorrection.png "Center of rotation correction test")
+
+### vi) Padding
+
+I used the same image to demonstrate the padding functionality. I implemented this function in the `Padding.py` file. I decided to code the horizontal and vertical padding separately, so that the user can choose to pad only one of the two dimensions. 
+
+![Padding test](padding.png "Padding test")
