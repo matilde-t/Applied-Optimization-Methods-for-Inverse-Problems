@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import os
 import numpy as np
+from matplotlib.gridspec import GridSpec
 
 
 def test_flatFieldCorrection():
@@ -104,29 +105,43 @@ def test_centerOfRotationCorrection():
 def test_NegativeLogTransform():
     cwd = os.getcwd()
     image = mpimg.imread(cwd + "/homework/hw01/tubeV1/scan_000006.tif")
-    image = flatFieldCorrection(
-        image,
-        mpimg.imread(cwd + "/homework/hw01/tubeV1/di000000.tif"),
-        mpimg.imread(cwd + "/homework/hw01/tubeV1/io000000.tif"),
-    )
     I0 = findI0(image)
-    transmission = transmissionToAbsorption(image.copy(), I0)
-    absorption = absorptionToTransmission(image.copy(), I0)
-    fig, ax = plt.subplots(1, 3)
-    ax[0].imshow(image, cmap="gray")
-    ax[0].axis("off")
-    ax[1].imshow(transmission, cmap="gray")
-    ax[1].axis("off")
-    ax[2].imshow(absorption, cmap="gray")
-    ax[2].axis("off")
-    # plt.savefig(cwd+"/homework/hw01/originalImage.png")
+    transmission = getTransmission(image.copy(), I0)
+    absorption = getAbsorption(image.copy(), I0)
+    a_to_t = absorptionToTransmission(absorption)
+    t_to_a = transmissionToAbsorption(transmission)
+    fig = plt.figure()
+    fig.suptitle("Negative log transform")
+    gs = GridSpec(3, 2, figure=fig)
+    ax1 = fig.add_subplot(gs[0, :])
+    im1 = ax1.imshow(image, cmap="gray")
+    fig.colorbar(im1, ax=ax1, location="left")
+    ax1.set_title("Original image")
+    ax2 = fig.add_subplot(gs[1, 0])
+    im2 = ax2.imshow(transmission, cmap="gray")
+    fig.colorbar(im2, ax=ax2)
+    ax2.set_title("Transmission")
+    ax3 = fig.add_subplot(gs[1, 1])
+    im3 = ax3.imshow(absorption, cmap="gray")
+    fig.colorbar(im3, ax=ax3)
+    ax3.set_title("Absorption")
+    ax4 = fig.add_subplot(gs[2, 0])
+    im4 = ax4.imshow(a_to_t, cmap="gray")
+    fig.colorbar(im4, ax=ax4)
+    ax4.set_title("Absorption to transmission")
+    ax5 = fig.add_subplot(gs[2, 1])
+    im5 = ax5.imshow(t_to_a, cmap="gray")
+    fig.colorbar(im5, ax=ax5)
+    ax5.set_title("Transmission to absorption")
+    plt.tight_layout()
+    plt.savefig(cwd + "/homework/hw01/negativeLogTransform.png")
     plt.show()
-    return
 
 
 def test_Padding():
     cwd = os.getcwd()
     image = mpimg.imread(cwd + "/homework/hw01/tubeV1/scan_000006.tif")
+    image = vPad(image, 1)
     v_pad_image = vPad(image, 100)
     h_pad_image = hPad(image, 100)
     b_pad_image = hPad(v_pad_image, 100)
@@ -143,11 +158,17 @@ def test_Padding():
     plt.tight_layout()
     plt.savefig(cwd + "/homework/hw01/padding.png")
     plt.show()
+    return
+
+
+def test_all():
+    test_flatFieldCorrection()
+    test_binning()
+    test_centerOfRotationCorrection()
+    test_NegativeLogTransform()
+    test_Padding()
+    return
 
 
 if __name__ == "__main__":
-    # test_flatFieldCorrection()
-    # test_binning()
-    # test_centerOfRotationCorrection()
-    # test_NegativeLogTransform()
-    test_Padding()
+    test_all()

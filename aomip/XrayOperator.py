@@ -174,13 +174,15 @@ class XrayOperator(LinearOperator):
             Object to forward project
         """
         # copy/move numpy array to elsa
-        ex = elsa.DataContainer(np.reshape(x, self.vol_shape, order="C"), self.vol_descriptor)
+        ex = elsa.DataContainer(
+            np.reshape(x, self.vol_shape, order="C"), self.vol_descriptor
+        )
 
         # perform forward projection
         sino = self.A.apply(ex)
 
         # return a numpy array
-        return np.array(sino) 
+        return np.array(sino)
 
     def applyAdjoint(self, sino):
         """Apply the back projection to sino
