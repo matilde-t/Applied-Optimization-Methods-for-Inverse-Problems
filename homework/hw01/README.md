@@ -46,3 +46,13 @@ I used the same image to demonstrate the padding functionality. I implemented th
 N.B. the color seems "faded" compared to the previous images due to the rescaling that happens when we add a lot of zero values. Maybe it would be more visually uniform if we padded with the minimum found in the image instead of zero.
 
 ![Padding test](padding.png "Padding test")
+
+## Part 4: Analytical Reconstruction
+
+For this task, I used the `shepp_logan` phantom that was already implemented. 
+
+![Forward projection](forwardProjection.png "Forward projection")
+
+From this sinomgram, I implemented the Filtered Back Projection (FBP) and confronted it with the `iradon` function from scipy to test its correctness. Apart from a rotated visualization, the result looks pretty similar.
+
+![Backward projection](backProjection.png "Backward projection")

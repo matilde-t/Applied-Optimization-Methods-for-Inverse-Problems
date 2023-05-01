@@ -5,3 +5,4 @@ from .Binning import *
 from .CenterOfRotationCorrection import *
 from .NegativeLogTransform import *
 from .Padding import *
+from .FilteredBackProjection import *

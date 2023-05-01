@@ -4,6 +4,7 @@ import matplotlib.image as mpimg
 import os
 import numpy as np
 from matplotlib.gridspec import GridSpec
+from skimage.transform import iradon as iradon_sci
 
 
 def test_flatFieldCorrection():
@@ -161,12 +162,53 @@ def test_Padding():
     return
 
 
+def test_FilteredBackProjection():
+    cwd = os.getcwd()
+    arc = 360
+    angles = 420
+    sino_shape = [420]
+    phantom = shepp_logan([320, 320])
+    sino = radon(phantom, sino_shape, np.linspace(0, arc, angles), 1000, 150)
+    fig, ax = plt.subplots(1, 2)
+    ax[0].imshow(phantom, cmap="gray")
+    ax[0].set_title("Shepp Logan phantom")
+    ax[1].imshow(sino, cmap="gray")
+    ax[1].set_title("Sinogram")
+    fig.suptitle("Forward projection")
+    plt.tight_layout()
+    plt.savefig(cwd + "/homework/hw01/forwardProjection.png")
+    plt.show()
+    fig, ax = plt.subplots(3, 2)
+    fig.suptitle("Back projection")
+    img_sci_no = iradon_sci(sino, np.linspace(0, arc, angles), filter_name=None)
+    img_sci_ra = iradon_sci(sino, np.linspace(0, arc, angles), filter_name="ramp")
+    img_sci_co = iradon_sci(sino, np.linspace(0, arc, angles), filter_name="cosine")
+    img_no = iradon(sino, sino_shape, phantom.shape, np.linspace(0, arc, angles), 1000, 150, filter=None)
+    img_ra = iradon(sino, sino_shape, phantom.shape, np.linspace(0, arc, angles), 1000, 150, filter="ram-lak")
+    img_co = iradon(sino, sino_shape, phantom.shape, np.linspace(0, arc, angles), 1000, 150, filter="cosine")
+    ax[0][0].imshow(img_sci_no, cmap="gray")
+    ax[0][0].set_title("SciPy, no filter")
+    ax[0][1].imshow(img_no, cmap="gray")
+    ax[0][1].set_title("No filter")
+    ax[1][0].imshow(img_sci_ra, cmap="gray")
+    ax[1][0].set_title("SciPy, ramp filter")
+    ax[1][1].imshow(img_ra, cmap="gray")
+    ax[1][1].set_title("Ram-lak filter")
+    ax[2][0].imshow(img_sci_co, cmap="gray")
+    ax[2][0].set_title("SciPy, cosine filter")
+    ax[2][1].imshow(img_co, cmap="gray")
+    ax[2][1].set_title("Cosine filter")
+    plt.tight_layout()
+    plt.savefig(cwd + "/homework/hw01/backProjection.png")
+    plt.show()
+
 def test_all():
     test_flatFieldCorrection()
     test_binning()
     test_centerOfRotationCorrection()
     test_NegativeLogTransform()
     test_Padding()
+    test_FilteredBackProjection()
     return
 
 
