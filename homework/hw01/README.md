@@ -53,6 +53,6 @@ For this task, I used the `shepp_logan` phantom that was already implemented.
 
 ![Forward projection](forwardProjection.png "Forward projection")
 
-From this sinomgram, I implemented the Filtered Back Projection (FBP) and confronted it with the `iradon` function from scipy to test its correctness. Apart from a rotated visualization, the result looks pretty similar.
+From this sinogram, I implemented the Filtered Back Projection (FBP) and confronted it with the `iradon` function from scipy to test its correctness. Apart from a rotated visualization, the result looks pretty similar.
 
 ![Backward projection](backProjection.png "Backward projection")
