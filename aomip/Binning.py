@@ -1,10 +1,15 @@
 import numpy as np
 
 
-def binning(x):
+def binning(x, n=1):
     """
-    Binning of image x.
+    Binning of image x, n times.
     """
+    for i in range(n):
+        x = bin(x)
+    return x
+    
+def bin(x):
     if len(x.shape) == 1:
         y = np.zeros(x.shape[0] // 2)
         for i in range(y.shape[0]):
