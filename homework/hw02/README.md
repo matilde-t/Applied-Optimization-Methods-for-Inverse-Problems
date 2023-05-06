@@ -64,7 +64,7 @@ This time, I had to increase the maximum number of iterations in order to see so
 
 ### i) Least Squares
 
-I implemented this function in `LeastSqaures.py`. It uses the previous implementation of Gradient Descent and the XrayOperator. I decided to test it on a real image, from the dataset cited above.
+I implemented this function in `LeastSquares.py`. It uses the previous implementation of Gradient Descent and the XrayOperator. I decided to test it on a real image, from the dataset cited above.
 
 ![Original image and its sinogram](leastSquares_orig.png "Original image and its sinogram")
 
