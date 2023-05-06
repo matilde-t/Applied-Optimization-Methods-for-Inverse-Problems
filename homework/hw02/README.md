@@ -62,9 +62,11 @@ This time, I had to increase the maximum number of iterations in order to see so
 
 ## Part 3: Solving CT Problems
 
+Given that all these methods use the previous implementation of Gradient Descent, I implemented them in the `GradientDescent.py` file.
+
 ### i) Least Squares
 
-I implemented this function in `LeastSquares.py`. It uses the previous implementation of Gradient Descent and the XrayOperator. I decided to test it on a real image, from the dataset cited above.
+This function uses the previous implementation of Gradient Descent and the XrayOperator. I decided to test it on a real image, from the dataset cited above.
 
 ![Original image and its sinogram](leastSquares_orig.png "Original image and its sinogram")
 
@@ -77,3 +79,13 @@ Varying $\lambda$, the reconstruction quality changes. With values lager than $1
 ![Least squares error](leastSquares_err.png "Least squares error")
 
 The error plot confirms the visual impression that $\lambda=10^{-3}$ gives the best approximation.
+
+### ii) $l^2$-Norm squared
+
+I implemented directly a generalized version of the Tikhonov problem, in the form $\frac{1}{2}||Ax-b||_2^2+\frac{\beta}{2}||Lx||_2^2$. Given that the best value found for $\lambda$ in the previous part was $10^{-3}$, I kept this value and looked at the error with varying $\beta$. L was kept as the default identity matrix. The maximum number of iterations was fixed as in the previous task to $10^4$.
+
+![Reconstructed images](l2Norm.png "Reconstructed images")
+
+![L2-Norm error](l2Norm_err.png "L2-Norm error error")
+
+This time is a bit more difficult to see exactly what the best result is, but using the error graph we determine that $\beta=-0.1$ seems the best value. We can see that for negative values of $\beta$ the image appears darker, and this makes sense because the initial value was a completely black image and with a negative beta value the higher the terms inside the image, the more is subtracted from the function to minimize. 

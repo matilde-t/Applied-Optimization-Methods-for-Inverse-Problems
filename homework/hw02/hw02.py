@@ -94,6 +94,7 @@ def test_LeastSquares():
         s2c,
         c2d
     )
+
     plt.figure()
     fig, ax = plt.subplots(1, 2)
     ax[0].imshow(phantom, cmap='gray')
@@ -133,12 +134,62 @@ def test_LeastSquares():
     plt.savefig('./homework/hw02/leastSquares_err.png')        
     return
 
+def test_l2Norm():
+    arc = 360
+    angles = 70
+    thetas = np.linspace(0, arc, angles)
+    sino_shape = [420]
+    s2c = 1000
+    c2d = 150
+    phantom = tifffile.imread('/srv/ceph/share-all/aomip/6983008_seashell/20211124_seashell_0666.tif')
+    phantom = aomip.centerOfRotationCorrection(phantom, -4, 1)
+    phantom = aomip.binning(phantom, 3)
+    x_shape = phantom.shape
+    sino = aomip.radon(phantom, sino_shape, thetas, s2c, c2d)
+    A = aomip.XrayOperator(
+        x_shape,
+        sino_shape,
+        thetas,
+        s2c,
+        c2d
+    )
+    x0 = np.ones(phantom.shape)
+    beta_list = np.arange(-0.9, 1, 0.2)
+    res = {}
+    err_phantom = {}
+    for beta in beta_list:
+        x = aomip.l2Norm(A, sino, x0, beta=beta, nmax=1e4)
+        res[beta] = x
+        err_phantom[beta] = np.linalg.norm(x - phantom)
+    plt.figure()
+    fig, ax = plt.subplots(len(beta_list)//2,2, figsize=(15,15))
+    for i, beta in enumerate(res):
+        ax[i//2][i-2*(i//2)].imshow(res[beta], cmap='gray')
+        ax[i//2][i-2*(i//2)].set_title('beta = {:.4}'.format(beta))
+    fig.suptitle('Reconstructed images using Tikhonov regularization')
+    plt.tight_layout()
+    plt.savefig('./homework/hw02/l2Norm.png')
+
+    plt.figure()
+    plt.scatter(err_phantom.keys(), err_phantom.values(), c='b')
+    plt.plot(err_phantom.keys(), err_phantom.values())
+    plt.title('Error as a function of beta')
+    plt.yscale('log')
+    plt.xlabel('beta')
+    plt.ylabel('error')
+    plt.tight_layout()
+    plt.savefig('./homework/hw02/l2Norm_err.png')
+      
+    return
+
 def test_all():
     test_Slicing()
     printShell()
     test_GradientDescent()
+    test_LeastSquares()
+    test_l2Norm()
     return  
         
 if __name__ == '__main__':
     # test_all()
-    test_LeastSquares()
+    test_l2Norm()
