@@ -57,7 +57,7 @@ With starting point $(-5,-5)$, this is the performance when changing $\lambda$:
 | $10^{-2}$  | $(\text{nan}, 6.50483625\cdot10^{101})$  | $5$ |
 | $10^{-3}$  | $(0.00024084, -0.00058143)$  | $5318$ |
 | $10^{-4}$  | $(0.00241247, -0.00582463)$  | $38350$ |
-Solving CT Problems
+
 This time, I had to increase the maximum number of iterations in order to see something interesting. The method is still capable of finding the minimum, but compared to the previous test function has an even higher risk of overshooting and the overall convergence is slower.
 
 ## Part 3: Solving CT Problems
