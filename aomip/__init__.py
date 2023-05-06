@@ -8,3 +8,4 @@ from .Padding import *
 from .FilteredBackProjection import *
 from .Slicing import *
 from .GradientDescent import *
+from .LeastSquares import *

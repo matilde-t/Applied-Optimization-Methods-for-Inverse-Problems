@@ -57,5 +57,23 @@ With starting point $(-5,-5)$, this is the performance when changing $\lambda$:
 | $10^{-2}$  | $(\text{nan}, 6.50483625\cdot10^{101})$  | $5$ |
 | $10^{-3}$  | $(0.00024084, -0.00058143)$  | $5318$ |
 | $10^{-4}$  | $(0.00241247, -0.00582463)$  | $38350$ |
-
+Solving CT Problems
 This time, I had to increase the maximum number of iterations in order to see something interesting. The method is still capable of finding the minimum, but compared to the previous test function has an even higher risk of overshooting and the overall convergence is slower.
+
+## Part 3: Solving CT Problems
+
+### i) Least Squares
+
+I implemented this function in `LeastSqaures.py`. It uses the previous implementation of Gradient Descent and the XrayOperator. I decided to test it on a real image, from the dataset cited above.
+
+![Original image and its sinogram](leastSquares_orig.png "Original image and its sinogram")
+
+To improve the reconstruction, I moved the image 4px to the left as suggestes in the dataset documentation and to speed up the process I binned the image 3 times in order to reduce its size.
+
+![Reconstructed images](leastSquares.png "Reconstructed images")
+
+Varying $\lambda$, the reconstruction quality changes. With values lager than $10^{-3}$, the overshoot was so severe that no image was appearing, so I omitted these values. We see that with a maximum iteration value of $10^{4}$, we always use all the iterations, meaning that the convergence is particularly slow. We can also see that for example with $\lambda=10^{-5}$ the convergence is too slow because the image appears strongly out of focus.
+
+![Least squares error](leastSquares_err.png "Least squares error")
+
+The error plot confirms the visual impression that $\lambda=10^{-3}$ gives the best approximation.
