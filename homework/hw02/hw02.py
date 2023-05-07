@@ -179,8 +179,105 @@ def test_l2Norm():
     plt.ylabel('error')
     plt.tight_layout()
     plt.savefig('./homework/hw02/l2Norm_err.png')
-      
+
     return
+
+def test_huber():
+    arc = 360
+    angles = 70
+    thetas = np.linspace(0, arc, angles)
+    sino_shape = [420]
+    s2c = 1000
+    c2d = 150
+    phantom = tifffile.imread('/srv/ceph/share-all/aomip/6983008_seashell/20211124_seashell_0666.tif')
+    phantom = aomip.centerOfRotationCorrection(phantom, -4, 1)
+    phantom = aomip.binning(phantom, 3)
+    x_shape = phantom.shape
+    sino = aomip.radon(phantom, sino_shape, thetas, s2c, c2d)
+    A = aomip.XrayOperator(
+        x_shape,
+        sino_shape,
+        thetas,
+        s2c,
+        c2d
+    )
+    x0 = np.ones(phantom.shape)
+    beta = -0.1
+    delta_list = [100, 200]
+    res = {}
+    err_phantom = {}
+    for delta in delta_list:
+        x = aomip.huber(A, sino, x0, beta=beta, nmax=1e3, delta=delta)
+        res[delta] = x
+        err_phantom[delta] = np.linalg.norm(x - phantom)
+    # plt.figure()
+    # fig, ax = plt.subplots(len(delta_list)//2,2, figsize=(15,15))
+    # for i, delta in enumerate(res):
+    #     ax[i//2][i-2*(i//2)].imshow(res[delta], cmap='gray')
+    #     ax[i//2][i-2*(i//2)].set_title('delta = {:.4}'.format(delta))
+    # fig.suptitle('Reconstructed images using Tikhonov regularization')
+    # plt.tight_layout()
+    # plt.savefig('./homework/hw02/huber.png')
+
+    plt.figure()
+    plt.scatter(err_phantom.keys(), err_phantom.values(), c='b')
+    plt.plot(err_phantom.keys(), err_phantom.values())
+    plt.title('Error as a function of delta')
+    plt.yscale('log')
+    plt.xlabel('beta')
+    plt.ylabel('error')
+    plt.tight_layout()
+    plt.savefig('./homework/hw02/huber_err.png')
+
+    return
+
+def test_fair():
+    arc = 360
+    angles = 70
+    thetas = np.linspace(0, arc, angles)
+    sino_shape = [420]
+    s2c = 1000
+    c2d = 150
+    phantom = tifffile.imread('/srv/ceph/share-all/aomip/6983008_seashell/20211124_seashell_0666.tif')
+    phantom = aomip.centerOfRotationCorrection(phantom, -4, 1)
+    phantom = aomip.binning(phantom, 3)
+    x_shape = phantom.shape
+    sino = aomip.radon(phantom, sino_shape, thetas, s2c, c2d)
+    A = aomip.XrayOperator(
+        x_shape,
+        sino_shape,
+        thetas,
+        s2c,
+        c2d
+    )
+    x0 = np.ones(phantom.shape)
+    beta = -0.1
+    delta_list = [1e12]
+    res = {}
+    err_phantom = {}
+    for delta in delta_list:
+        x = aomip.huber(A, sino, x0, beta=beta, nmax=1e3, delta=delta)
+        res[delta] = x
+        err_phantom[delta] = np.linalg.norm(x - phantom)
+    # plt.figure()
+    # fig, ax = plt.subplots(len(delta_list)//2,2, figsize=(15,15))
+    # for i, delta in enumerate(res):
+    #     ax[i//2][i-2*(i//2)].imshow(res[delta], cmap='gray')
+    #     ax[i//2][i-2*(i//2)].set_title('delta = {:.4}'.format(delta))
+    # fig.suptitle('Reconstructed images using Tikhonov regularization')
+    # plt.tight_layout()
+    # plt.savefig('./homework/hw02/fair.png')
+
+    plt.figure()
+    plt.scatter(err_phantom.keys(), err_phantom.values(), c='b')
+    plt.plot(err_phantom.keys(), err_phantom.values())
+    plt.title('Error as a function of delta')
+    plt.yscale('log')
+    plt.xlabel('beta')
+    plt.ylabel('error')
+    plt.tight_layout()
+    plt.savefig('./homework/hw02/fair_err.png')
+
 
 def test_all():
     test_Slicing()
@@ -192,4 +289,5 @@ def test_all():
         
 if __name__ == '__main__':
     # test_all()
-    test_l2Norm()
+    # test_huber()
+    test_Slicing()

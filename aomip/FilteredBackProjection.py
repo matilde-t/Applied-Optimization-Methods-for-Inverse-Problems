@@ -4,6 +4,7 @@ from aomip import XrayOperator
 
 def iradon(
     sino,
+    sino_shape,
     x_shape,
     thetas,
     s2c,
@@ -23,7 +24,7 @@ def iradon(
 
     A = XrayOperator(
         x_shape,
-        sino.shape[:-1],
+        sino_shape,
         thetas,
         s2c,
         c2d,
@@ -34,20 +35,49 @@ def iradon(
         projection_method=projection_method,
         dtype=dtype,
     )
-    H = np.linspace(-1, 1, sino.shape[0])
+    sino = np.fft.fftn(sino)
+    x_freq = np.fft.fftfreq(sino.shape[0])
+    y_freq = np.fft.fftfreq(sino.shape[1])
+
     if filter == "ram-lak":
-        H = np.abs(H)
+        for i in range(x_freq.shape[0]):
+            for j in range(y_freq.shape[0]):
+                if x_freq[i] < -0.5 or x_freq[i] > 0.5:
+                    sino[i][:] = 0
+                elif y_freq[j] < -0.5 or y_freq[j] > 0.5:
+                    sino[:][j] = 0
+                else:
+                    sino[i][j] = np.sqrt(x_freq[i] ** 2 + y_freq[j] ** 2) * sino[i][j]
     elif filter == "shepp-logan":
-        H = np.abs(H) * np.sinc(H / 2)
+        for i in range(x_freq.shape[0]):
+            for j in range(y_freq.shape[0]):
+                if x_freq[i] < -0.5 or x_freq[i] > 0.5:
+                    sino[i][:] = 0
+                elif y_freq[j] < -0.5 or y_freq[j] > 0.5:
+                    sino[:][j] = 0
+                else:
+                    sino[i][j] = (
+                        4
+                        * np.sqrt(x_freq[i] ** 2 + y_freq[j] ** 2)
+                        * np.sin(np.pi * x_freq[i] / 2)
+                        * np.sin(np.pi * y_freq[j] / 2)
+                        * sino[i][j]
+                    ) / (x_freq[i] * y_freq[j] * np.pi**2)
     elif filter == "cosine":
-        H = np.abs(H) * np.cos(H * np.pi / 2)
+        for i in range(x_freq.shape[0]):
+            for j in range(y_freq.shape[0]):
+                if x_freq[i] < -0.5 or x_freq[i] > 0.5:
+                    sino[i][:] = 0
+                elif y_freq[j] < -0.5 or y_freq[j] > 0.5:
+                    sino[:][j] = 0
+                else:
+                    sino[i][j] = (
+                        np.sqrt(x_freq[i] ** 2 + y_freq[j] ** 2)
+                        * np.cos(np.pi * x_freq[i] / 2)
+                        * np.cos(np.pi * y_freq[j] / 2)
+                        * sino[i][j]
+                    )
     else:
-        return A.applyAdjoint(sino)
+        pass
 
-    h = np.tile(H, (thetas.shape[0], 1)).T
-
-    fftsino = np.fft.fft(sino, axis=0)
-    projection = np.fft.fftshift(fftsino, axes=1) * np.fft.fftshift(h, axes=0)
-    fsino = np.real(np.fft.ifft(np.fft.ifftshift(projection, axes=1), axis=0))
-
-    return A.applyAdjoint(fsino)  # .reshape(x_shape, order="F")
+    return A.applyAdjoint(np.fft.ifftn(sino)).reshape(x_shape, order="F")

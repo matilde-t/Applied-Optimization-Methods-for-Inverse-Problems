@@ -1,4 +1,5 @@
 import numpy as np
+import scipy as sp
 
 def gradDesc(df, x0, l=1e-3, nmax=1000, eps=1e-6):
     """
@@ -31,3 +32,31 @@ def l2Norm(A, b, x0, L=None, beta=1, l=1e-3, nmax=1000, eps=1e-6):
         L = np.eye(len(x0))
     df = lambda x: A.applyAdjoint(A.apply(x) - b) + beta / 2 * L.T @ L @ x
     return gradDesc(df, x0, l, nmax, eps)
+
+def Ld(x, delta=1):
+    """
+    Derivative of the Huber function.
+    """
+    res = []
+    shape = x.shape
+    for i in x.flatten():
+        if np.abs(i) < delta:
+            res.append(i)
+        else:
+            res.append(delta * np.sign(i))
+    return np.array(res).reshape(shape)
+
+def huber(A, b, x0, delta=1, beta=1, l=1e-3, nmax=1000, eps=1e-6):
+    """
+    Solves the Tikhonov problem with l1 regularization.
+    """
+    df = lambda x: A.applyAdjoint(A.apply(x) - b) + beta / 2 * Ld(x, delta)
+    return gradDesc(df, x0, l, nmax, eps)
+
+def fair(A, b, x0, delta=1, beta=1, l=1e-3, nmax=1000, eps=1e-6):
+    """
+    Solves the Tikhonov problem with Fair potential.
+    """
+    df = lambda x: A.applyAdjoint(A.apply(x) - b) + beta / 2 * x / (1 + x / delta)
+    return gradDesc(df, x0, l, nmax, eps)
+

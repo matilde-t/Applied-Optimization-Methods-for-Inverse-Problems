@@ -88,4 +88,10 @@ I implemented directly a generalized version of the Tikhonov problem, in the for
 
 ![L2-Norm error](l2Norm_err.png "L2-Norm error error")
 
-This time is a bit more difficult to see exactly what the best result is, but using the error graph we determine that $\beta=-0.1$ seems the best value. We can see that for negative values of $\beta$ the image appears darker, and this makes sense because the initial value was a completely black image and with a negative beta value the higher the terms inside the image, the more is subtracted from the function to minimize. 
+This time is a bit more difficult to see exactly what the best result is, but using the error graph we determine that $\beta=-0.1$ seems the best value. We can see that for negative values of $\beta$ the image appears darker, and this makes sense because the initial value was a completely black image and with a negative beta value the higher the terms inside the image, the more is subtracted from the function to minimize.
+
+### iii) Huber Functional
+
+## Part 4: Finite Differences
+
+I was just able to implement the 
