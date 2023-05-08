@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import tifffile
 import os
 import numpy as np
+from scipy.io import loadmat
 
 
 def test_Slicing():
@@ -308,6 +309,36 @@ def test_L():
     print('Error: {:.5E}'.format(err_phantom))
     return
 
+def test_Reconstruction():
+    data = loadmat('/srv/ceph/share-all/aomip/htc2022_test_data/htc2022_01a_full', simplify_cells=True, squeeze_me=True)
+    sino = data['CtDataFull']['sinogram'].T
+    angles = data['CtDataFull']['parameters']['angles']
+    source_origin = data['CtDataFull']['parameters']['distanceSourceOrigin']
+    source_detector = data['CtDataFull']['parameters']['distanceSourceDetector']
+    detector_rows = data['CtDataFull']['parameters']['detectorRows']
+    detector_cols = data['CtDataFull']['parameters']['detectorCols']
+    n_images = data['CtDataFull']['parameters']['numberImages']
+    pixel_size = data['CtDataFull']['parameters']['pixelSize']
+    plt.figure
+    plt.imshow(sino, cmap='gray')
+    plt.title('Sinogram')
+    plt.tight_layout()
+    plt.savefig('./homework/hw02/htc2022_sinogram.png')
+    A = aomip.XrayOperator(
+        (detector_rows, detector_cols),
+        [sino.shape[0]],
+        angles,
+        source_origin,
+        source_detector)
+    x0 = np.ones((detector_rows, detector_cols))
+    x = aomip.leastSquares(A, sino, x0, l=1e-3, nmax=1e2)
+    plt.figure()
+    plt.imshow(x, cmap='gray')
+    plt.title('Reconstructed image')
+    plt.tight_layout()
+    plt.savefig('./homework/hw02/htc2022.tiff')
+    return
+
 def test_all():
     test_Slicing()
     printShell()
@@ -318,4 +349,4 @@ def test_all():
     return  
         
 if __name__ == '__main__':
-    test_all()
+    test_Reconstruction()
