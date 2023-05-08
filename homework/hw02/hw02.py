@@ -179,7 +179,6 @@ def test_l2Norm():
     plt.ylabel('error')
     plt.tight_layout()
     plt.savefig('./homework/hw02/l2Norm_err.png')
-
     return
 
 def test_huber():
@@ -278,6 +277,36 @@ def test_fair():
     plt.tight_layout()
     plt.savefig('./homework/hw02/fair_err.png')
 
+def test_L():
+    arc = 360
+    angles = 70
+    thetas = np.linspace(0, arc, angles)
+    sino_shape = [420]
+    s2c = 1000
+    c2d = 150
+    phantom = tifffile.imread('/srv/ceph/share-all/aomip/6983008_seashell/20211124_seashell_0666.tif')
+    phantom = aomip.centerOfRotationCorrection(phantom, -4, 1)
+    phantom = aomip.binning(phantom, 3)
+    x_shape = phantom.shape
+    sino = aomip.radon(phantom, sino_shape, thetas, s2c, c2d)
+    A = aomip.XrayOperator(
+        x_shape,
+        sino_shape,
+        thetas,
+        s2c,
+        c2d
+    )
+    x0 = np.ones(phantom.shape)
+    L = aomip.forwardDiff(x0)
+    x = aomip.l2Norm(A, sino, x0, beta=1, nmax=1e4, L=L)
+    err_phantom = np.linalg.norm(x - phantom)
+    plt.figure()
+    plt.imshow(x, cmap='gray')
+    plt.title('Reconstructed images using forward difference operator')
+    plt.tight_layout()
+    plt.savefig('./homework/hw02/diff.png')
+    print('Error: {:.5E}'.format(err_phantom))
+    return
 
 def test_all():
     test_Slicing()
@@ -285,9 +314,8 @@ def test_all():
     test_GradientDescent()
     test_LeastSquares()
     test_l2Norm()
+    test_L()
     return  
         
 if __name__ == '__main__':
-    # test_all()
-    # test_huber()
-    test_Slicing()
+    test_all()

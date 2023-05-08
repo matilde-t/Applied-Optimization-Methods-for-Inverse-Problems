@@ -90,8 +90,10 @@ I implemented directly a generalized version of the Tikhonov problem, in the for
 
 This time is a bit more difficult to see exactly what the best result is, but using the error graph we determine that $\beta=-0.1$ seems the best value. We can see that for negative values of $\beta$ the image appears darker, and this makes sense because the initial value was a completely black image and with a negative beta value the higher the terms inside the image, the more is subtracted from the function to minimize.
 
-### iii) Huber Functional
-
 ## Part 4: Finite Differences
 
-I was just able to implement the 
+I decided to write the finite differences matrix as a sparse matrix, given that it has a great amount of zero entries. This was achieved by using the scipy sparse package.
+
+The result with gradient descent, $\lambda = 10^{-3}$ and $10^{4}$ iterations seems promising and returns an error of $3.41\cdot10^{4}$, not far from the one found in the version with the identity matrix.
+
+![Forward differences result](diff.png "Forward differences result")
