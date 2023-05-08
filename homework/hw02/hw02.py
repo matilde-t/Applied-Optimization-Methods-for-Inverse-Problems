@@ -4,6 +4,7 @@ import tifffile
 import os
 import numpy as np
 from scipy.io import loadmat
+from PIL import Image
 
 
 def test_Slicing():
@@ -310,33 +311,48 @@ def test_L():
     return
 
 def test_Reconstruction():
-    data = loadmat('/srv/ceph/share-all/aomip/htc2022_test_data/htc2022_01a_full', simplify_cells=True, squeeze_me=True)
+    data = loadmat('/srv/ceph/share-all/aomip/htc2022_test_data/htc2022_01c_full', simplify_cells=True, squeeze_me=True)
     sino = data['CtDataFull']['sinogram'].T
     angles = data['CtDataFull']['parameters']['angles']
-    source_origin = data['CtDataFull']['parameters']['distanceSourceOrigin']
+    source_origin = data['CtDataFull']['parameters']['distanceSourceOrigin']*100
     source_detector = data['CtDataFull']['parameters']['distanceSourceDetector']
-    detector_rows = data['CtDataFull']['parameters']['detectorRows']
-    detector_cols = data['CtDataFull']['parameters']['detectorCols']
-    n_images = data['CtDataFull']['parameters']['numberImages']
-    pixel_size = data['CtDataFull']['parameters']['pixelSize']
-    plt.figure
-    plt.imshow(sino, cmap='gray')
-    plt.title('Sinogram')
+    x_shape = np.array([512, 512])
+
+    fig, ax = plt.subplots(1, 2)
+    ax[0].imshow(sino, cmap='gray')
+    ax[0].set_title('Sinogram')
+    ax[1].imshow(np.asarray(Image.open('/srv/ceph/share-all/aomip/htc2022_test_data/htc2022_01c_recon_fbp.png')), cmap='gray')
+    ax[1].set_title('Reference image')
+    fig.suptitle('Helsinki original data')
     plt.tight_layout()
-    plt.savefig('./homework/hw02/htc2022_sinogram.png')
+    plt.savefig('./homework/hw02/htc2022_orig.png')
+
+    res = []
+    filters = ['none', 'ram-lak', 'shepp-logan', 'cosine']
+    for filter in filters:
+        res.append(aomip.iradon(sino, [sino.shape[0]], x_shape, angles, source_origin, source_detector, filter=filter))
+
     A = aomip.XrayOperator(
-        (detector_rows, detector_cols),
+        x_shape,
         [sino.shape[0]],
         angles,
         source_origin,
         source_detector)
-    x0 = np.ones((detector_rows, detector_cols))
-    x = aomip.leastSquares(A, sino, x0, l=1e-3, nmax=1e2)
-    plt.figure()
-    plt.imshow(x, cmap='gray')
-    plt.title('Reconstructed image')
+    x0 = np.zeros(x_shape)
+    res.append(aomip.leastSquares(A, sino, x0))
+    res.append(aomip.l2Norm(A, sino, x0))
+
+    fig, ax = plt.subplots(3, 2, figsize=(10,10))
+    for i in range(0,4):
+        ax[i//2][i-2*(i//2)].imshow(res[i], cmap='gray')
+        ax[i//2][i-2*(i//2)].set_title('Filter: {}'.format(filters[i]))
+    for i in range(4,6):
+        ax[i//2][i-2*(i//2)].imshow(res[i], cmap='gray')
+    ax[2][0].set_title('Least squares')
+    ax[2][1].set_title('Tikhonov')
+    fig.suptitle('Reconstructed images')
     plt.tight_layout()
-    plt.savefig('./homework/hw02/htc2022.tiff')
+    plt.savefig('./homework/hw02/htc2022_recon.png')
     return
 
 def test_all():
@@ -346,6 +362,7 @@ def test_all():
     test_LeastSquares()
     test_l2Norm()
     test_L()
+    test_Reconstruction()
     return  
         
 if __name__ == '__main__':

@@ -97,3 +97,13 @@ I decided to write the finite differences matrix as a sparse matrix, given that 
 The result with gradient descent, $\lambda = 10^{-3}$ and $10^{4}$ iterations seems promising and returns an error of $3.41\cdot10^{4}$, not far from the one found in the version with the identity matrix.
 
 ![Forward differences result](diff.png "Forward differences result")
+
+## Part 5: Iterative algorithm vs FBP
+
+I just decided to use the test dataset directly and see how the results compare. I decided to use the phantom type C with difficulty 1.
+
+![Original data](htc2022_orig.png "Original data")
+
+![Reconstructed images](htc2022_recon.png "Reconstructed images")
+
+We can see that the Filtered Back Projection performs very similarly compared to the iterative methods, that are however slower. Probably with some fine tuning in the parameters we can even achieve a better result.
