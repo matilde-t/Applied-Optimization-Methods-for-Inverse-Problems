@@ -7,4 +7,5 @@ from .NegativeLogTransform import *
 from .Padding import *
 from .FilteredBackProjection import *
 from .Slicing import *
-from .GradientDescent import *
+from .GradientDescentClass import *
+from .OptimizedGradientMethod1 import *
