@@ -1,39 +1,28 @@
-from aomip import OGM1, GD , iradon, XrayOperator
-from scipy.io import loadmat
+from aomip import OGM1, GD , LW
+from challenge.utils import load_htc2022data, segment, calculate_score
 import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
+import tifffile
 
-def testOGM1():
-    data = loadmat('/srv/ceph/share-all/aomip/htc2022_test_data/htc2022_01c_full', simplify_cells=True, squeeze_me=True)
-    sino = data['CtDataFull']['sinogram'].T
-    angles = data['CtDataFull']['parameters']['angles']
-    source_origin = data['CtDataFull']['parameters']['distanceSourceOrigin']*100
-    source_detector = data['CtDataFull']['parameters']['distanceSourceDetector']
+def test_OGM1():
+    sino, A = load_htc2022data('/srv/ceph/share-all/aomip/htc2022_test_data/htc2022_07c_full')
     x_shape = np.array([512, 512])
 
-    x0 = iradon(sino, [sino.shape[0]], x_shape, angles, source_origin, source_detector)
+    x0 = np.zeros(x_shape)
 
-    fig, ax = plt.subplots(1, 3)
+    ground = tifffile.imread('/srv/ceph/share-all/aomip/htc2022_ground_truth/htc2022_07c_recon.tif')
+
+    fig, ax = plt.subplots(1, 2)
     ax[0].imshow(sino, cmap='gray')
     ax[0].set_title('Sinogram')
-    ax[1].imshow(np.asarray(Image.open('/srv/ceph/share-all/aomip/htc2022_test_data/htc2022_01c_recon_fbp.png')), cmap='gray')
-    ax[1].set_title('Reference image')
-    ax[2].imshow(x0, cmap='gray')
-    ax[2].set_title('Reconstructed image')
+    ax[1].imshow(ground, cmap='gray')
+    ax[1].set_title('Ground truth')
     fig.suptitle('Helsinki original data')
     plt.tight_layout()
     plt.savefig('./homework/hw03/htc2022_orig.png')
-
-    A = XrayOperator(
-        x_shape,
-        [sino.shape[0]],
-        angles,
-        source_origin,
-        source_detector)
     
     gd = GD(A, sino, x0)
-    ogm = OGM1(A, sino, x0, l=1e-4)
+    ogm = OGM1(A, sino, x0)
 
     res=[]
     res.append(gd.leastSquares())
@@ -41,15 +30,81 @@ def testOGM1():
     res.append(ogm.leastSquares())
     res.append(ogm.l2Norm())
 
-    titles = ['GD Least squares', 'GD Tikhonov', 'OGM1 LS', 'OGM1 Tikhonov']
+    titles = ['GD-LeastSquares', 'GD-Tikhonov', 'OGM1-LeastSquares', 'OGM1-Tikhonov']
+    score = []
+    x = np.arange(2, 6)
     fig, ax = plt.subplots(2, 2)
     for i in range(0, 2):
         for j in range(0, 2):
             ax[i, j].imshow(res[i*2+j], cmap='gray')
             ax[i, j].set_title(titles[i*2+j])
+            tifffile.imwrite('./homework/hw03/htc2022_'+titles[i*2+j]+'.tif', res[i*2+j])
+            score.append(calculate_score(segment(res[i*2+j]), segment(ground)))
     fig.suptitle('Comparison of different methods')
     plt.tight_layout()
-    plt.savefig('./homework/hw03/htc2022_comp.png')
+    plt.savefig('./homework/hw03/GD_OGM.png')
+
+    plt.figure()
+    plt.scatter(x, score)
+    plt.xticks(x, titles)
+    plt.ylim(0, 1)
+    plt.title('Score of different methods')
+    plt.savefig('./homework/hw03/GD_OGM_err.png')
+
+    print(score)
+
+    return
+
+def test_Landweber():
+    sino, A = load_htc2022data('/srv/ceph/share-all/aomip/htc2022_test_data/htc2022_07c_full')
+    x_shape = np.array([512, 512])
+    x0 = np.zeros(x_shape)
+
+    ground = tifffile.imread('/srv/ceph/share-all/aomip/htc2022_ground_truth/htc2022_07c_recon.tif')
+
+    lw = LW(A, sino, x0)
+    sigma2 = lw.sigma2()
+
+    mult = [1, 1e2, 1e4, 1e6]
+    lam = [1/(sigma2*i) for i in mult]
+    res = []
+    score = []
+    for l in lam:
+        img = lw.solve(l)
+        res.append(img)
+        score.append(calculate_score(segment(img), segment(ground)))
+
+    fig, ax = plt.subplots(2, 2)
+    for i in range(0, 2):
+        for j in range(0, 2):
+            ax[i, j].imshow(res[i*2+j], cmap='gray')
+            ax[i, j].set_title('lambda=1/(sigma^2*'+str(int(mult[i*2+j]))+')')
+            tifffile.imwrite('./homework/hw03/htc2022_Landweber_'+str(mult[i*2+j])+'.tif', res[i*2+j])
+    fig.suptitle('Landweber iteration')
+    plt.tight_layout()
+    plt.savefig('./homework/hw03/landweber.png')
+
+    plt.figure()
+    plt.scatter(lam, score)
+    plt.ylim(0, 1)
+    plt.xscale('log')
+    plt.title('Score of different lambda')
+    plt.tight_layout()
+    plt.savefig('./homework/hw03/landweber_score.png')
+
+    print(score)
+
+    return
+
+def test_all():
+    test_OGM1()
+    test_Landweber()
+    return
 
 if __name__ == '__main__':
-    testOGM1()
+    sino, A = load_htc2022data('/srv/ceph/share-all/aomip/htc2022_test_data/htc2022_07c_full')
+    x_shape = np.array([512, 512])
+    x0 = np.zeros(x_shape)
+    lw = LW(A, sino, x0)
+    img = lw.solve()
+    tifffile.imwrite('./homework/hw03/htc2022_Landweber.tif', img)

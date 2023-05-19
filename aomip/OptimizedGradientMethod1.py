@@ -14,7 +14,7 @@ class OGM1:
         """
         Optimized Gradient Method 1, based on the paper by Kim and Fessler.
         """
-        print('Starting Optimized Gradient Descent 1')
+        print('Starting Optimized Gradient Method 1')
         x0 = self.x0.copy().flatten()
         theta0 = self.theta0
         y0 = x0
