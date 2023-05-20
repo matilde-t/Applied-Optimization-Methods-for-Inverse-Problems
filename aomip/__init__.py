@@ -10,3 +10,4 @@ from .Slicing import *
 from .GradientDescentClass import *
 from .OptimizedGradientMethod1 import *
 from .Landweber import *
+from .ConjugateGradientDescent import *

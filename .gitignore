@@ -162,3 +162,4 @@ cython_debug/
 # Mati
 htc2022_test_data/
 .vscode/
+*.tif

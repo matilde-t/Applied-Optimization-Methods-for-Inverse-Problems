@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class LW:
     def __init__(self, A, b, x0, nmax=1000, eps=1e-6, l=None):
         self.A = A
@@ -13,18 +14,18 @@ class LW:
         """
         Implement the Ladweber iteration.
         """
-        print('Starting Landweber iteration')
+        print("Starting Landweber iteration")
         self.l = l
         if self.l is None:
             self.l = 1 / self.sigma2()
         x0 = self.x0.copy()
         x0 = x0
         for i in range(self.nmax):
-            x = x0 - self.l*self.A.applyAdjoint(self.A.apply(x0) - self.b)
+            x = x0 - self.l * self.A.applyAdjoint(self.A.apply(x0) - self.b)
             if np.linalg.norm(x - self.x0) < self.eps:
                 break
             x0 = x
-        print('Number of iterations: {}'.format(i))
+        print("Number of iterations: {}".format(i + 1))
         return x.reshape(self.x0.shape)
 
     def sigma2(self, b0=None, nmax=100):
@@ -39,7 +40,4 @@ class LW:
             b = Cb / np.linalg.norm(Cb)
             b0 = b
         proj = np.dot(b.flatten(), self.A.applyAdjoint(self.A.apply(b)).flatten())
-        return proj/np.linalg.norm(b)
-            
-
-        
+        return proj / np.linalg.norm(b)

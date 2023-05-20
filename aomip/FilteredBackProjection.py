@@ -47,7 +47,7 @@ def iradon(
         pass
 
     h = np.tile(H, (num_angles, 1)).T
-    
+
     fftsino = np.fft.fft(sino, axis=0)
     projection = np.fft.fftshift(fftsino, axes=1) * np.fft.fftshift(h, axes=0)
     fsino = np.real(np.fft.ifft(np.fft.ifftshift(projection, axes=1), axis=0))

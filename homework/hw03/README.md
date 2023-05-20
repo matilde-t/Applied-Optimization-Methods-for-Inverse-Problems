@@ -41,3 +41,23 @@ We can see that compared to the other methods, here we actually see a better res
 ![](landweber_score.png)
 
 The result with $\lambda=\frac{1}{\sigma_1^2}$ seems extremely interesting.
+
+### iv) Conjugate gradient
+
+I found out that the method is indeed faster than the others: the best result is achieved with just one iteration, but the score is lower compared to the other methods: probably it would be useful as a cheap good approximation to use as a starting point for other, more accurate methods.
+
+| `nmax` for CGD  | Score  |
+|:-:|:-:|
+| 1  | 0.7339 |
+| 5  | 0.0043 |
+| 10  | 0.0015 |
+| 100  | 0.0015 |
+
+![](CGD.png)
+
+| Method  | Score  |
+|:-:|:-:|
+| Gradient descent  | 0.9293 |
+| Optimized gradient method  | 0.9896 |
+| Landweber  | 0.9984 |
+| Conjugate gradient descent  | 0.7339 |

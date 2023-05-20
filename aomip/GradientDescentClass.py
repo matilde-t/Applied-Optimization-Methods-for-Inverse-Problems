@@ -1,6 +1,7 @@
 import numpy as np
 import scipy as sp
 
+
 class GD:
     def __init__(self, A, b, x0, l=1e-3, nmax=1000, eps=1e-6):
         self.A = A
@@ -9,12 +10,12 @@ class GD:
         self.l = l
         self.nmax = nmax
         self.eps = eps
-    
+
     def gradDesc(self, df):
         """
         Gradient descent.
         """
-        print('Starting gradient descent')
+        print("Starting gradient descent")
         i = 0
         err = np.inf
         x0 = self.x0.copy()
@@ -25,7 +26,7 @@ class GD:
             err = np.linalg.norm(x - x0)
             x0 = x
             i = i + 1
-        print('Number of iterations: {}'.format(i))
+        print("Number of iterations: {}".format(i))
         return x.reshape(shape)
 
     def leastSquares(self):
@@ -34,7 +35,7 @@ class GD:
         """
         df = lambda x: self.A.applyAdjoint(self.A.apply(x) - self.b).flatten()
         return self.gradDesc(df)
-    
+
     def l2Norm(self, L=None, beta=1):
         """
         Solves the Tikhonov problem in the form (1/2)||Ax-b||^2 + (beta/2)l^2||Lx||^2
@@ -42,22 +43,30 @@ class GD:
         """
         if L is None:
             L = sp.sparse.eye(len(self.x0.flatten()))
-        df = lambda x: self.A.applyAdjoint(self.A.apply(x) - self.b).flatten() + beta / 2 * L.T @ L @ x.flatten()
+        df = (
+            lambda x: self.A.applyAdjoint(self.A.apply(x) - self.b).flatten()
+            + beta / 2 * L.T @ L @ x.flatten()
+        )
         return self.gradDesc(df)
 
     def huber(self, delta=1, beta=1):
         """
         Solves the Tikhonov problem with l1 regularization.
         """
-        df = lambda x: self.A.applyAdjoint(self.A.apply(x) - self.b) + beta / 2 * self.Ld(x, delta)
+        df = lambda x: self.A.applyAdjoint(
+            self.A.apply(x) - self.b
+        ) + beta / 2 * self.Ld(x, delta)
         return self.gradDesc(df)
-    
+
     def fair(self, delta=1, beta=1):
         """
         Solves the Tikhonov problem with Fair potential.
         """
-        df = lambda x: self.A.applyAdjoint(self.A.apply(x) - self.b) + beta / 2 * x / (1 + x / delta)
+        df = lambda x: self.A.applyAdjoint(self.A.apply(x) - self.b) + beta / 2 * x / (
+            1 + x / delta
+        )
         return self.gradDesc(df)
+
 
 def forwardDiff(x):
     """
@@ -69,15 +78,16 @@ def forwardDiff(x):
     dy = sp.sparse.diags([-1, 1], [0, n + 1], (length, length))
     return sp.sparse.vstack([dx, dy])
 
+
 def Ld(x, delta=1):
-        """
-        Derivative of the Huber function.
-        """
-        res = []
-        shape = x.shape
-        for i in x.flatten():
-            if np.abs(i) < delta:
-                res.append(i)
-            else:
-                res.append(delta * np.sign(i))
-        return np.array(res).reshape(shape)
+    """
+    Derivative of the Huber function.
+    """
+    res = []
+    shape = x.shape
+    for i in x.flatten():
+        if np.abs(i) < delta:
+            res.append(i)
+        else:
+            res.append(delta * np.sign(i))
+    return np.array(res).reshape(shape)

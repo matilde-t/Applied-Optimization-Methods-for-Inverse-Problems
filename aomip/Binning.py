@@ -8,7 +8,8 @@ def binning(x, n=1):
     for i in range(n):
         x = bin(x)
     return x
-    
+
+
 def bin(x):
     if len(x.shape) == 1:
         y = np.zeros(x.shape[0] // 2)
