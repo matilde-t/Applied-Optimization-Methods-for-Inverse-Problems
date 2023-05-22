@@ -9,5 +9,8 @@ from .FilteredBackProjection import *
 from .Slicing import *
 from .GradientDescentClass import *
 from .OptimizedGradientMethod1 import *
-from .Landweber import *
+from .LandweberClass import *
 from .ConjugateGradientDescent import *
+from .Noise import *
+from .Landweber import *
+from .GradientDescent import *

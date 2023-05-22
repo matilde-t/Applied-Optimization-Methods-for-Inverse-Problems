@@ -1,7 +1,8 @@
 import os
+from multiprocessing import Pool
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
-from aomip import OGM1, GD, LW, CGD
+from aomip import OGM1, GD, LW, CGD, noise, landweber, gradDesc, forwardDiff
 from challenge.utils import load_htc2022data, segment, calculate_score
 import matplotlib.pyplot as plt
 import numpy as np
@@ -159,12 +160,70 @@ def test_CGD():
     return
 
 
+def test_noise():
+    ground = tifffile.imread("./homework/hw03/5.1.12.tiff")
+    n = noise(ground)
+    img = {}
+    img["Gaussian"] = n.gaussian()
+    img["Poisson"] = n.poisson()
+    img["Salt and Pepper"] = n.salt_pepper()
+    fig, ax = plt.subplots(2, 2)
+    ax[0, 0].imshow(ground, cmap="gray")
+    ax[0, 0].set_title("Original")
+    ax[0, 1].imshow(img["Gaussian"], cmap="gray")
+    ax[0, 1].set_title("Gaussian")
+    ax[1, 0].imshow(img["Poisson"], cmap="gray")
+    ax[1, 0].set_title("Poisson")
+    ax[1, 1].imshow(img["Salt and Pepper"], cmap="gray")
+    ax[1, 1].set_title("Salt and Pepper")
+    fig.suptitle("Different types of noise")
+    plt.tight_layout()
+    plt.savefig("./homework/hw03/noise.png")
+    x0 = np.zeros(ground.shape).flatten()
+    res = {}
+    nmax = 1e7
+    for i in img.items():
+        for beta in [1e-2, 1e-3, 1e-4, 1e-5]:
+            l2Norm = lambda x: (x - i[1].flatten()) + beta * x
+            res[i[0] + ", beta = {:.5f}".format(beta)] = gradDesc(
+                l2Norm, x0, nmax=nmax
+            ).reshape(ground.shape)
+    score = {}
+    for el in res.items():
+        score[el[0]] = "{:.3f}".format(
+            np.linalg.norm(el[1] - ground) / np.linalg.norm(ground)
+        )
+    print(score)
+    ref_score = {}
+    for el in img.items():
+        ref_score[el[0]] = "{:.3f}".format(
+            np.linalg.norm(el[1] - ground) / np.linalg.norm(ground)
+        )
+    print(ref_score)
+    fig, ax = plt.subplots(1, 2)
+    ax[0].imshow(img["Gaussian"], cmap="gray")
+    ax[0].set_title("Gaussian noise")
+    ax[1].imshow(res["Gaussian, beta = 0.01000"], cmap="gray")
+    ax[1].set_title("Denoising, beta = 0.01000")
+    plt.tight_layout()
+    plt.savefig("./homework/hw03/denoise_gauss.png")
+    fig, ax = plt.subplots(1, 2)
+    ax[0].imshow(img["Poisson"], cmap="gray")
+    ax[0].set_title("Poisson noise")
+    ax[1].imshow(res["Poisson, beta = 0.01000"], cmap="gray")
+    ax[1].set_title("Denoising, beta = 0.01000")
+    plt.tight_layout()
+    plt.savefig("./homework/hw03/denoise_poisson.png")
+    return
+
+
 def test_all():
     test_OGM1()
     test_Landweber()
     test_CGD()
+    test_noise()
     return
 
 
 if __name__ == "__main__":
-    test_all()
+    test_noise()

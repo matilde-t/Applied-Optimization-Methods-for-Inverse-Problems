@@ -61,3 +61,52 @@ I found out that the method is indeed faster than the others: the best result is
 | Optimized gradient method  | 0.9896 |
 | Landweber  | 0.9984 |
 | Conjugate gradient descent  | 0.7339 |
+
+## Part 2: Solving problems other than X-ray CT
+
+### Denoising
+
+I decided to pick the *Clock* image from the [University of Southern California's database](https://sipi.usc.edu/database/database.php?volume=misc) in order to try and apply the three different types of noise. These are implemented in the file `Noise.py` as a class.
+
+![](noise.png)
+
+In order to denoise the image, some kind of regularisation is needed, like Tikhonov. With a Tikhonov problem, from the formulation $\frac{1}{2}||Ax-b||_2^2+\frac{\beta}{2}||x||_2^2$, with $A$ equal to the identity matrix, we obtain as a derivative $(x-b)+\beta x$. However, when solving it through Gradient Descent, with different values of $\beta$ and $\lambda$, we don't achieve satisfying results. These are the results with $10^7$ iterations and default $\lambda$.
+
+#### Gaussian noise
+
+**Relative error compare to ground truth: 0.121**
+
+| $\beta$  | Relative error  |
+|:-:|:-:|
+| $10^{-2}$  | 0.120 |
+| $10^{-3}$  | 0.121 |
+| $10^{-4}$  | 0.121 |
+| $10^{-5}$  | 0.121 |
+
+#### Poisson noise
+
+**Relative error compare to ground truth: 0.126**
+
+| $\beta$  | Relative error  |
+|:-:|:-:|
+| $10^{-2}$  | 0.116 |
+| $10^{-3}$  | 0.125 |
+| $10^{-4}$  | 0.126 |
+| $10^{-5}$  | 0.126 |
+
+#### Salt and Pepper noise
+
+**Relative error compare to ground truth: 0.127**
+
+| $\beta$  | Relative error  |
+|:-:|:-:|
+| $10^{-2}$  | 0.210 |
+| $10^{-3}$  | 0.210 |
+| $10^{-4}$  | 0.210 |
+| $10^{-5}$  | 0.210 |
+
+I print show two of the best results for comparison:
+
+![](denoise_gauss.png)
+
+![](denoise_poisson.png)
