@@ -74,7 +74,7 @@ In order to denoise the image, some kind of regularisation is needed, like Tikho
 
 #### Gaussian noise
 
-**Relative error compare to ground truth: 0.121**
+**Relative error compared to ground truth: 0.121**
 
 | $\beta$  | Relative error  |
 |:-:|:-:|
@@ -85,7 +85,7 @@ In order to denoise the image, some kind of regularisation is needed, like Tikho
 
 #### Poisson noise
 
-**Relative error compare to ground truth: 0.126**
+**Relative error compared to ground truth: 0.126**
 
 | $\beta$  | Relative error  |
 |:-:|:-:|
@@ -96,7 +96,7 @@ In order to denoise the image, some kind of regularisation is needed, like Tikho
 
 #### Salt and Pepper noise
 
-**Relative error compare to ground truth: 0.127**
+**Relative error compared to ground truth: 0.127**
 
 | $\beta$  | Relative error  |
 |:-:|:-:|
@@ -110,3 +110,39 @@ I print show two of the best results for comparison:
 ![](denoise_gauss.png)
 
 ![](denoise_poisson.png)
+
+### Deblurring
+
+I implemented the convolution and deconvolution in `GaussianFilter.py`. The two functions seems to work fine.
+
+![](convolution.png)
+
+However, when noise is added to the blurred image, the results are not as good.
+
+![](convolution_gaussian.png)
+
+![](convolution_salt_pepper.png)
+
+When applying Tikhonov regularization, the solution doesn't improve particularly: the relative error in comparison to the ground truth is still very high, and the image appears even worse than the original blurred/noisy image.
+
+#### Gaussian noise
+
+**Relative error compared to ground truth: 0.128**
+
+| $\beta$  | Relative error  |
+|:-:|:-:|
+| $10^{-2}$  | 0.754 |
+| $10^{-3}$  | 0.774 |
+| $10^{-4}$  | 0.777 |
+| $10^{-5}$  | 0.777 |
+
+#### Salt and Pepper noise
+
+**Relative error compared to ground truth: 0.214**
+
+| $\beta$  | Relative error  |
+|:-:|:-:|
+| $10^{-2}$  | 0.755 |
+| $10^{-3}$  | 0.776 |
+| $10^{-4}$  | 0.778 |
+| $10^{-5}$  | 0.778 |

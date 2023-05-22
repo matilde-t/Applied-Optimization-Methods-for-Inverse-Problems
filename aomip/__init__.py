@@ -14,3 +14,4 @@ from .ConjugateGradientDescent import *
 from .Noise import *
 from .Landweber import *
 from .GradientDescent import *
+from .GaussianFilter import *

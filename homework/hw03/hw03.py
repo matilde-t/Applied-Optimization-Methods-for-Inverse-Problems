@@ -2,7 +2,7 @@ import os
 from multiprocessing import Pool
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
-from aomip import OGM1, GD, LW, CGD, noise, landweber, gradDesc, forwardDiff
+from aomip import OGM1, GD, LW, CGD, noise, gradDesc, GFconvolution, GFdeconvolution
 from challenge.utils import load_htc2022data, segment, calculate_score
 import matplotlib.pyplot as plt
 import numpy as np
@@ -217,13 +217,95 @@ def test_noise():
     return
 
 
+def test_convolution():
+    ground = tifffile.imread("./homework/hw03/5.1.12.tiff")
+    ground[256:356, 256:356] = 255
+    convoluted = GFconvolution(ground)
+    deconvoluted = GFdeconvolution(convoluted)
+    fig, ax = plt.subplots(1, 3)
+    ax[0].imshow(ground, cmap="gray")
+    ax[0].set_title("Original")
+    ax[1].imshow(convoluted, cmap="gray")
+    ax[1].set_title("Convoluted")
+    ax[2].imshow(deconvoluted, cmap="gray")
+    ax[2].set_title("Deconvoluted")
+    plt.tight_layout()
+    plt.savefig("./homework/hw03/convolution.png")
+
+    gaussian = noise(convoluted).gaussian()
+    deconvoluted = GFdeconvolution(gaussian)
+    fig, ax = plt.subplots(1, 2)
+    ax[0].imshow(gaussian, cmap="gray")
+    ax[0].set_title("Convoluted, with Gaussian noise")
+    ax[1].imshow(deconvoluted, cmap="gray")
+    ax[1].set_title("Deconvoluted")
+    plt.tight_layout()
+    plt.savefig("./homework/hw03/convolution_gaussian.png")
+
+    salt_pepper = noise(convoluted).salt_pepper()
+    deconvoluted = GFdeconvolution(salt_pepper)
+    fig, ax = plt.subplots(1, 2)
+    ax[0].imshow(salt_pepper, cmap="gray")
+    ax[0].set_title("Convoluted, with Salt and Pepper noise")
+    ax[1].imshow(deconvoluted, cmap="gray")
+    ax[1].set_title("Deconvoluted")
+    plt.tight_layout()
+    plt.savefig("./homework/hw03/convolution_salt_pepper.png")
+    return
+
+
+def test_deconvolution():
+    ground = tifffile.imread("./homework/hw03/5.1.12.tiff")
+    blurred = GFconvolution(ground)
+    gauss = noise(blurred).gaussian()
+    salt_pepper = noise(blurred).salt_pepper()
+    x0 = np.ones(ground.shape) * 255
+    nmax = 1e4
+    res = {}
+    for beta in [1e-2, 1e-3, 1e-4, 1e-5]:
+        l2Norm = (
+            lambda x: GFdeconvolution(
+                GFconvolution(x.reshape(ground.shape)) - gauss
+            ).flatten()
+            + beta * x
+        )
+        res["Gauss noise, beta = {:.5f}".format(beta)] = gradDesc(l2Norm, x0, nmax=nmax)
+    for beta in [1e-2, 1e-3, 1e-4, 1e-5]:
+        l2Norm = (
+            lambda x: GFdeconvolution(
+                GFconvolution(x.reshape(ground.shape)) - salt_pepper
+            ).flatten()
+            + beta * x
+        )
+        res["Salt and Pepper noise, beta = {:.5f}".format(beta)] = gradDesc(
+            l2Norm, x0, nmax=nmax
+        )
+    err = {}
+    for el in res.items():
+        err[el[0]] = "{:.3f}".format(
+            np.linalg.norm(np.clip(el[1], 0, 255) - ground) / np.linalg.norm(ground)
+        )
+    print(err)
+    ref = {}
+    ref["Gauss noise"] = "{:.3f}".format(
+        np.linalg.norm(gauss - ground) / np.linalg.norm(ground)
+    )
+    ref["Salt and Pepper noise"] = "{:.3f}".format(
+        np.linalg.norm(salt_pepper - ground) / np.linalg.norm(ground)
+    )
+    print(ref)
+    return
+
+
 def test_all():
     test_OGM1()
     test_Landweber()
     test_CGD()
     test_noise()
+    test_convolution()
+    test_deconvolution()
     return
 
 
 if __name__ == "__main__":
-    test_noise()
+    test_deconvolution()
