@@ -3,31 +3,70 @@ import scipy as sp
 
 
 class GD:
-    def __init__(self, A, b, x0, l=1e-3, nmax=1000, eps=1e-6):
+    def __init__(
+        self,
+        A=None,
+        b=None,
+        x0=None,
+        l=1e-3,
+        nmax=1000,
+        eps=1e-6,
+        backtrack=False,
+        BB1=False,
+        BB2=False,
+        debug=False,
+    ):
         self.A = A
         self.b = b
         self.x0 = x0
         self.l = l
         self.nmax = nmax
         self.eps = eps
+        self.backtrack = backtrack
+        self.BB1 = BB1
+        self.BB2 = BB2
+        self.debug = debug
 
-    def gradDesc(self, df):
+    def gradDesc(self, df, f=None, x0=None):
         """
         Gradient descent.
         """
         print("Starting gradient descent")
         i = 0
         err = np.inf
-        x0 = self.x0.copy()
+        if self.x0 is not None:
+            x0 = self.x0.copy()
         shape = x0.shape
         x0 = x0.flatten()
+        l = self.l
+        if self.debug:
+            x_vec = []
+            l_vec = []
         while i < self.nmax and err > self.eps:
-            x = x0 - self.l * df(x0)
+            if self.debug:
+                x_vec.append(x0)
+                l_vec.append(l)
+            if self.backtrack:
+                l = self.backtracking(df, f, x0)
+            ## update rule
+            x = x0 - l * df(x0)
+            ##
+            if self.BB1:
+                s = x - x0
+                y = df(x) - df(x0)
+                l = np.dot(s, y) / np.dot(y, y)
+            if self.BB2:
+                s = x - x0
+                y = df(x) - df(x0)
+                l = np.dot(s, s) / np.dot(s, y)
             err = np.linalg.norm(x - x0)
             x0 = x
             i = i + 1
         print("Number of iterations: {}".format(i))
-        return x.reshape(shape)
+        if self.debug:
+            return x.reshape(shape), x_vec, l_vec
+        else:
+            return x.reshape(shape)
 
     def leastSquares(self):
         """
@@ -66,6 +105,13 @@ class GD:
             1 + x / delta
         )
         return self.gradDesc(df)
+
+    def backtracking(self, df, f, x0, rho=0.5, c=0.5):
+        p = df(x0)
+        alpha = 1
+        while f(x0 - alpha * p) > f(x0) - c * alpha * np.linalg.norm(p) ** 2:
+            alpha = rho * alpha
+        return alpha
 
 
 def forwardDiff(x):
