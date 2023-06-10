@@ -15,3 +15,4 @@ from .Noise import *
 from .Landweber import *
 from .GradientDescent import *
 from .GaussianFilter import *
+from .IterativeShrinkageThresholdingAlgorithm import *

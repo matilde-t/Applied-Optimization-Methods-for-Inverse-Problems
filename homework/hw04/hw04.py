@@ -145,7 +145,7 @@ def test_linesearch():
     for pair in gd.items():
         ax[i].plot([np.linalg.norm(el - ground) ** 2 for el in x_helsinki[pair[0]]])
         ax[i].set_title(pair[0])
-        ax[i].set_ylim([1.81e8,1.826e8])
+        ax[i].set_ylim([1.81e8, 1.826e8])
         ax[i].set_xlabel("Iteration")
         i += 1
     fig.suptitle("Convergence analysis (squared 2-norm error)")
@@ -153,6 +153,7 @@ def test_linesearch():
     plt.savefig("./homework/hw04/htc2022_convergence.png")
 
     return
+
 
 def test_ISTA():
     sino, A = load_htc2022data(
@@ -166,19 +167,18 @@ def test_ISTA():
         "/srv/ceph/share-all/aomip/htc2022_ground_truth/htc2022_07c_recon.tif"
     )
 
-
-
     nmax = 300
-    gd = {}
-    gd["Line_Search"] = GD(A, sino, x0, debug=True, backtrack=True, nmax=nmax)
-    gd["Barzilai_and_Borwein_1"] = GD(A, sino, x0, debug=True, BB1=True, nmax=nmax)
-    gd["Barzilai_and_Borwein_2"] = GD(A, sino, x0, debug=True, BB2=True, nmax=nmax)
+    ista = {}
+    ista["Default"] = ISTA(A, sino, x0, debug=True, nmax=nmax)
+    ista["Line_Search"] = ISTA(A, sino, x0, debug=True, backtrack=True, nmax=nmax)
+    ista["Barzilai_and_Borwein_1"] = ISTA(A, sino, x0, debug=True, BB1=True, nmax=nmax)
+    ista["Barzilai_and_Borwein_2"] = ISTA(A, sino, x0, debug=True, BB2=True, nmax=nmax)
 
     res_helsinki = {}
     score_helsinki = {}
     x_helsinki = {}
     l_helsinki = {}
-    for pair in gd.items():
+    for pair in ista.items():
         res_helsinki[pair[0]], x_helsinki[pair[0]], l_helsinki[pair[0]] = pair[
             1
         ].leastSquares()
@@ -189,7 +189,7 @@ def test_ISTA():
     print("Helsinki scores")
     print(score_helsinki)
 
-    for pair in gd.items():
+    for pair in ista.items():
         fig, ax = plt.subplots(2, 2)
         ax[0, 0].imshow(res_helsinki[pair[0]], cmap="gray")
         ax[0, 0].set_title(
@@ -212,29 +212,27 @@ def test_ISTA():
         )
         fig.suptitle(pair[0])
         plt.tight_layout()
-        plt.savefig("./homework/hw04/htc2022_{}.png".format(pair[0]))
+        plt.savefig("./homework/hw04/ISTA_{}.png".format(pair[0]))
 
-    fig, ax = plt.subplots(3, 1)
+    fig, ax = plt.subplots(4, 1)
     i = 0
-    for pair in gd.items():
+    for pair in ista.items():
         ax[i].plot([np.linalg.norm(el - ground) ** 2 for el in x_helsinki[pair[0]]])
         ax[i].set_title(pair[0])
-        ax[i].set_ylim([1.81e8,1.826e8])
         ax[i].set_xlabel("Iteration")
         i += 1
     fig.suptitle("Convergence analysis (squared 2-norm error)")
     plt.tight_layout()
-    plt.savefig("./homework/hw04/htc2022_convergence.png")
+    plt.savefig("./homework/hw04/ISTA_convergence.png")
 
     return
 
-
-    return
 
 def test_all():
     test_linesearch()
+    test_ISTA()
     return
 
 
 if __name__ == "__main__":
-    test_linesearch()
+    test_ISTA()

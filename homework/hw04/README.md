@@ -64,6 +64,18 @@ From this last plot, we can see that Backtracking is more stable, but decreases 
 
 ### ii) Iterative Shrinkage-Thresholding Algorithm
 
+For the creation of this algorithm, I followed the same structure as `GradientDescentClass.py` and compared the performance of the algorithm with a set $\beta=10^{-2}$. As we can see, a dynamic step size helps immensely and we observe a behaviour similar to the one in point i).
+
+![](ISTA_Default.png)
+
+![](ISTA_Line_Search.png)
+
+![](ISTA_Barzilai_and_Borwein_1.png)
+
+![](ISTA_Barzilai_and_Borwein_2.png)
+
+![](ISTA_convergence.png)
+
 ### iii) Projected Gradient Descent
 
 ## Part 2: Semi-Convergence
