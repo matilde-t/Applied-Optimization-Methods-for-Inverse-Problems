@@ -14,7 +14,7 @@ class GD:
         backtrack=False,
         BB1=False,
         BB2=False,
-        debug=False,
+        verbose=False,
     ):
         self.A = A
         self.b = b
@@ -25,7 +25,7 @@ class GD:
         self.backtrack = backtrack
         self.BB1 = BB1
         self.BB2 = BB2
-        self.debug = debug
+        self.verbose = verbose
 
     def gradDesc(self, df, f=None, x0=None):
         """
@@ -39,11 +39,11 @@ class GD:
         shape = x0.shape
         x0 = x0.flatten()
         l = self.l
-        if self.debug:
+        if self.verbose:
             x_vec = []
             l_vec = []
         while i < self.nmax and err > self.eps:
-            if self.debug:
+            if self.verbose:
                 x_vec.append(x0.reshape(shape))
                 l_vec.append(l)
             if self.backtrack:
@@ -63,7 +63,7 @@ class GD:
             x0 = x
             i = i + 1
         print("Number of iterations: {}".format(i))
-        if self.debug:
+        if self.verbose:
             return x.reshape(shape), x_vec, l_vec
         else:
             return x.reshape(shape)

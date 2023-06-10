@@ -96,9 +96,9 @@ def test_linesearch():
 
     nmax = 300
     gd = {}
-    gd["Line_Search"] = GD(A, sino, x0, debug=True, backtrack=True, nmax=nmax)
-    gd["Barzilai_and_Borwein_1"] = GD(A, sino, x0, debug=True, BB1=True, nmax=nmax)
-    gd["Barzilai_and_Borwein_2"] = GD(A, sino, x0, debug=True, BB2=True, nmax=nmax)
+    gd["Line_Search"] = GD(A, sino, x0, verbose=True, backtrack=True, nmax=nmax)
+    gd["Barzilai_and_Borwein_1"] = GD(A, sino, x0, verbose=True, BB1=True, nmax=nmax)
+    gd["Barzilai_and_Borwein_2"] = GD(A, sino, x0, verbose=True, BB2=True, nmax=nmax)
 
     res_helsinki = {}
     score_helsinki = {}
@@ -169,10 +169,10 @@ def test_ISTA():
 
     nmax = 300
     ista = {}
-    ista["Default"] = ISTA(A, sino, x0, debug=True, nmax=nmax)
-    ista["Line_Search"] = ISTA(A, sino, x0, debug=True, backtrack=True, nmax=nmax)
-    ista["Barzilai_and_Borwein_1"] = ISTA(A, sino, x0, debug=True, BB1=True, nmax=nmax)
-    ista["Barzilai_and_Borwein_2"] = ISTA(A, sino, x0, debug=True, BB2=True, nmax=nmax)
+    ista["Default"] = ISTA(A, sino, x0, verbose=True, nmax=nmax)
+    ista["Line_Search"] = ISTA(A, sino, x0, verbose=True, backtrack=True, nmax=nmax)
+    ista["Barzilai_and_Borwein_1"] = ISTA(A, sino, x0, verbose=True, BB1=True, nmax=nmax)
+    ista["Barzilai_and_Borwein_2"] = ISTA(A, sino, x0, verbose=True, BB2=True, nmax=nmax)
 
     res_helsinki = {}
     score_helsinki = {}
