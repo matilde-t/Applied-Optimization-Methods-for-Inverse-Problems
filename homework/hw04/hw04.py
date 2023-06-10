@@ -1,4 +1,4 @@
-from aomip import GD
+from aomip import GD, ISTA
 import tifffile
 import matplotlib.pyplot as plt
 import numpy as np
@@ -94,23 +94,142 @@ def test_linesearch():
     plt.tight_layout()
     plt.savefig("./homework/hw04/htc2022_orig.png")
 
+    nmax = 300
     gd = {}
-    gd["Line Search"] = GD(A, sino, x0, backtrack=True, debug=True)
-    gd["Barzilai and Borwein 1"] = GD(A, sino, x0, debug=True, BB1=True)
-    gd["Barzilai and Borwein 2"] = GD(A, sino, x0, debug=True, BB2=True)
+    gd["Line_Search"] = GD(A, sino, x0, debug=True, backtrack=True, nmax=nmax)
+    gd["Barzilai_and_Borwein_1"] = GD(A, sino, x0, debug=True, BB1=True, nmax=nmax)
+    gd["Barzilai_and_Borwein_2"] = GD(A, sino, x0, debug=True, BB2=True, nmax=nmax)
 
     res_helsinki = {}
-    err_helsinki = {}
+    score_helsinki = {}
     x_helsinki = {}
     l_helsinki = {}
     for pair in gd.items():
         res_helsinki[pair[0]], x_helsinki[pair[0]], l_helsinki[pair[0]] = pair[
             1
         ].leastSquares()
-        err_helsinki[pair[0]] = np.linalg.norm(res_helsinki[pair[0]] - ground)
+        score_helsinki[pair[0]] = calculate_score(
+            segment(res_helsinki[pair[0]]), segment(ground)
+        )
+
+    print("Helsinki scores")
+    print(score_helsinki)
+
+    for pair in gd.items():
+        fig, ax = plt.subplots(2, 2)
+        ax[0, 0].imshow(res_helsinki[pair[0]], cmap="gray")
+        ax[0, 0].set_title(
+            "Final iteration, score: {:.2f}".format(score_helsinki[pair[0]])
+        )
+        ax[0, 1].plot(l_helsinki[pair[0]])
+        ax[0, 1].set_xlabel("Iteration")
+        ax[0, 1].set_title("Values of lambda")
+        ax[1, 0].imshow(x_helsinki[pair[0]][10], cmap="gray")
+        ax[1, 0].set_title(
+            "100th iteration, score: {:.2f}".format(
+                calculate_score(segment(x_helsinki[pair[0]][100]), segment(ground))
+            )
+        )
+        ax[1, 1].imshow(x_helsinki[pair[0]][50], cmap="gray")
+        ax[1, 1].set_title(
+            "200th iteration, score: {:.2f}".format(
+                calculate_score(segment(x_helsinki[pair[0]][200]), segment(ground))
+            )
+        )
+        fig.suptitle(pair[0])
+        plt.tight_layout()
+        plt.savefig("./homework/hw04/htc2022_{}.png".format(pair[0]))
+
+    fig, ax = plt.subplots(3, 1)
+    i = 0
+    for pair in gd.items():
+        ax[i].plot([np.linalg.norm(el - ground) ** 2 for el in x_helsinki[pair[0]]])
+        ax[i].set_title(pair[0])
+        ax[i].set_ylim([1.81e8,1.826e8])
+        ax[i].set_xlabel("Iteration")
+        i += 1
+    fig.suptitle("Convergence analysis (squared 2-norm error)")
+    plt.tight_layout()
+    plt.savefig("./homework/hw04/htc2022_convergence.png")
 
     return
 
+def test_ISTA():
+    sino, A = load_htc2022data(
+        "/srv/ceph/share-all/aomip/htc2022_test_data/htc2022_07c_full"
+    )
+    x_shape = np.array([512, 512])
+
+    x0 = np.zeros(x_shape)
+
+    ground = tifffile.imread(
+        "/srv/ceph/share-all/aomip/htc2022_ground_truth/htc2022_07c_recon.tif"
+    )
+
+
+
+    nmax = 300
+    gd = {}
+    gd["Line_Search"] = GD(A, sino, x0, debug=True, backtrack=True, nmax=nmax)
+    gd["Barzilai_and_Borwein_1"] = GD(A, sino, x0, debug=True, BB1=True, nmax=nmax)
+    gd["Barzilai_and_Borwein_2"] = GD(A, sino, x0, debug=True, BB2=True, nmax=nmax)
+
+    res_helsinki = {}
+    score_helsinki = {}
+    x_helsinki = {}
+    l_helsinki = {}
+    for pair in gd.items():
+        res_helsinki[pair[0]], x_helsinki[pair[0]], l_helsinki[pair[0]] = pair[
+            1
+        ].leastSquares()
+        score_helsinki[pair[0]] = calculate_score(
+            segment(res_helsinki[pair[0]]), segment(ground)
+        )
+
+    print("Helsinki scores")
+    print(score_helsinki)
+
+    for pair in gd.items():
+        fig, ax = plt.subplots(2, 2)
+        ax[0, 0].imshow(res_helsinki[pair[0]], cmap="gray")
+        ax[0, 0].set_title(
+            "Final iteration, score: {:.2f}".format(score_helsinki[pair[0]])
+        )
+        ax[0, 1].plot(l_helsinki[pair[0]])
+        ax[0, 1].set_xlabel("Iteration")
+        ax[0, 1].set_title("Values of lambda")
+        ax[1, 0].imshow(x_helsinki[pair[0]][10], cmap="gray")
+        ax[1, 0].set_title(
+            "100th iteration, score: {:.2f}".format(
+                calculate_score(segment(x_helsinki[pair[0]][100]), segment(ground))
+            )
+        )
+        ax[1, 1].imshow(x_helsinki[pair[0]][50], cmap="gray")
+        ax[1, 1].set_title(
+            "200th iteration, score: {:.2f}".format(
+                calculate_score(segment(x_helsinki[pair[0]][200]), segment(ground))
+            )
+        )
+        fig.suptitle(pair[0])
+        plt.tight_layout()
+        plt.savefig("./homework/hw04/htc2022_{}.png".format(pair[0]))
+
+    fig, ax = plt.subplots(3, 1)
+    i = 0
+    for pair in gd.items():
+        ax[i].plot([np.linalg.norm(el - ground) ** 2 for el in x_helsinki[pair[0]]])
+        ax[i].set_title(pair[0])
+        ax[i].set_ylim([1.81e8,1.826e8])
+        ax[i].set_xlabel("Iteration")
+        i += 1
+    fig.suptitle("Convergence analysis (squared 2-norm error)")
+    plt.tight_layout()
+    plt.savefig("./homework/hw04/htc2022_convergence.png")
+
+    return
+
+
+    return
 
 def test_all():
     test_linesearch()

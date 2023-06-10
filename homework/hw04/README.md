@@ -44,6 +44,24 @@ With starting point $(-5,-5)$, this is the performance for different line search
 
 In this case, the number of iterations is comparable in the three line search algorithms, but BB1 and BB2 achieve a greater precision.
 
+#### Helsinki tomography dataset
+
+In this case, I use the 07 C sample from the dataset. In this case, instead of the absolute error, it is more relevant to calculate the correlation score with the given tool.
+
+What I found out is that these methods require a lower number of iterations and actually perform worse with a higer one: for example with BB2 the score was becoming negative with 1000 iterations.
+
+![](htc2022_Line_Search.png)
+
+![](htc2022_Barzilai_and_Borwein_1.png)
+
+![](htc2022_Barzilai_and_Borwein_2.png)
+
+We can see that in the case of backtracking, the value of $\lambda$ has a stable, oscillating pattern, whereas BB1 and BB2 follow a similar pattern with occasional "spikes". Probably in the case of BB2 these "spikes" are too big for this problem and cause the algorithm to acutally go away from the solution on the long run.
+
+![](htc2022_convergence.png)
+
+From this last plot, we can see that Backtracking is more stable, but decreases more slowly compared to BB1. BB2 also performs quite well, but it's more unstable.
+
 ### ii) Iterative Shrinkage-Thresholding Algorithm
 
 ### iii) Projected Gradient Descent

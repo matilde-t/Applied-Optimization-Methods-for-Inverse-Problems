@@ -44,7 +44,7 @@ class GD:
             l_vec = []
         while i < self.nmax and err > self.eps:
             if self.debug:
-                x_vec.append(x0)
+                x_vec.append(x0.reshape(shape))
                 l_vec.append(l)
             if self.backtrack:
                 l = self.backtracking(df, f, x0)
@@ -73,7 +73,8 @@ class GD:
         Solve the Least Squares Problem using Gradient Descent.
         """
         df = lambda x: self.A.applyAdjoint(self.A.apply(x) - self.b).flatten()
-        return self.gradDesc(df)
+        f = lambda x: 0.5 * np.linalg.norm(self.A.apply(x) - self.b) ** 2
+        return self.gradDesc(df, f)
 
     def l2Norm(self, L=None, beta=1):
         """
@@ -112,7 +113,6 @@ class GD:
         while f(x0 - alpha * p) > f(x0) - c * alpha * np.linalg.norm(p) ** 2:
             alpha = rho * alpha
         return alpha
-
 
 def forwardDiff(x):
     """
