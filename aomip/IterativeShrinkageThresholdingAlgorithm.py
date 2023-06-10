@@ -86,4 +86,7 @@ class ISTA:
 
 
 def soft(v, r):
+    """
+    Soft thresholding operator.
+    """
     return np.sign(v) * np.maximum(np.abs(v) - r, 0)

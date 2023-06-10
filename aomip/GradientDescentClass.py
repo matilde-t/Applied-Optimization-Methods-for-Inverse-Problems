@@ -114,6 +114,7 @@ class GD:
             alpha = rho * alpha
         return alpha
 
+
 def forwardDiff(x):
     """
     Construct forward difference operator in 2D
