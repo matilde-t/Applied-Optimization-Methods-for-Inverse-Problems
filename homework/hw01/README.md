@@ -49,7 +49,7 @@ N.B. the color seems "faded" compared to the previous images due to the rescalin
 
 ## Part 4: Analytical Reconstruction
 
-For this task, I used the `shepp_logan` phantom that was already implemented. 
+For this task, I used the `shepp_logan` phantom that was already implemented.
 
 ![Forward projection](forwardProjection.png "Forward projection")
 

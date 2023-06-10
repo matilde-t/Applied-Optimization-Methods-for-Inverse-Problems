@@ -33,15 +33,12 @@ def findI0(x):
     """
     Find the value of I0 for a given image.
     """
-    return np.mean(np.max(x, axis=0))
+    return np.mean(x[0:127][0:127])
 
 
 def capTransmission(x, I0):
     """
     Every value above I0 is set to I0.
     """
-    for i in range(x.shape[0]):
-        for j in range(x.shape[1]):
-            if x[i][j] > I0:
-                x[i][j] = I0
+    x[x > I0] = I0
     return x

@@ -171,8 +171,12 @@ def test_ISTA():
     ista = {}
     ista["Default"] = ISTA(A, sino, x0, verbose=True, nmax=nmax)
     ista["Line_Search"] = ISTA(A, sino, x0, verbose=True, backtrack=True, nmax=nmax)
-    ista["Barzilai_and_Borwein_1"] = ISTA(A, sino, x0, verbose=True, BB1=True, nmax=nmax)
-    ista["Barzilai_and_Borwein_2"] = ISTA(A, sino, x0, verbose=True, BB2=True, nmax=nmax)
+    ista["Barzilai_and_Borwein_1"] = ISTA(
+        A, sino, x0, verbose=True, BB1=True, nmax=nmax
+    )
+    ista["Barzilai_and_Borwein_2"] = ISTA(
+        A, sino, x0, verbose=True, BB2=True, nmax=nmax
+    )
 
     res_helsinki = {}
     score_helsinki = {}
