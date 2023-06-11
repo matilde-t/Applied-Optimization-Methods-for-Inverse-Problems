@@ -48,6 +48,8 @@ In this case, the number of iterations is comparable in the three line search al
 
 In this case, I use the 07 C sample from the dataset. In this case, instead of the absolute error, it is more relevant to calculate the correlation score with the given tool.
 
+![](htc2022_orig.png)
+
 What I found out is that these methods require a lower number of iterations and actually perform worse with a higer one: for example with BB2 the score was becoming negative with 1000 iterations.
 
 ![](htc2022_Line_Search.png)
