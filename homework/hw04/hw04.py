@@ -246,7 +246,7 @@ def test_PGD():
 
     nmax = 100
     lb = [-np.inf, 0]
-    ub = [1, 2] #[50, 150, 250, np.inf]
+    ub = [50, 150, 250, np.inf]
     for low in lb:
         for up in ub:
             c = [low, up]
@@ -285,16 +285,24 @@ def test_PGD():
             )
             plt.tight_layout()
             plt.savefig("./homework/hw04/PDG_convergence_{}-{}.png".format(c[0], c[1]))
-            
+
             fig, ax = plt.subplots(2, 2)
-            ax[0,0].imshow(res_helsinki["Default"], cmap="gray")
-            ax[0,0].set_title("Default, score: {:.2f}".format(score_helsinki["Default"]))
-            ax[0,1].imshow(res_helsinki["Line_Search"], cmap="gray")
-            ax[0,1].set_title("Line search, score: {:.2f}".format(score_helsinki["Line_Search"]))
-            ax[1,0].imshow(res_helsinki["Barzilai_and_Borwein_1"], cmap="gray")
-            ax[1,0].set_title("BB1, score: {:.2f}".format(score_helsinki["Barzilai_and_Borwein_1"]))
-            ax[1,1].imshow(res_helsinki["Barzilai_and_Borwein_2"], cmap="gray")
-            ax[1,1].set_title("BB2, score: {:.2f}".format(score_helsinki["Barzilai_and_Borwein_2"]))
+            ax[0, 0].imshow(res_helsinki["Default"], cmap="gray")
+            ax[0, 0].set_title(
+                "Default, score: {:.2f}".format(score_helsinki["Default"])
+            )
+            ax[0, 1].imshow(res_helsinki["Line_Search"], cmap="gray")
+            ax[0, 1].set_title(
+                "Line search, score: {:.2f}".format(score_helsinki["Line_Search"])
+            )
+            ax[1, 0].imshow(res_helsinki["Barzilai_and_Borwein_1"], cmap="gray")
+            ax[1, 0].set_title(
+                "BB1, score: {:.2f}".format(score_helsinki["Barzilai_and_Borwein_1"])
+            )
+            ax[1, 1].imshow(res_helsinki["Barzilai_and_Borwein_2"], cmap="gray")
+            ax[1, 1].set_title(
+                "BB2, score: {:.2f}".format(score_helsinki["Barzilai_and_Borwein_2"])
+            )
             fig.suptitle("Final results, c = {}".format(c))
             plt.tight_layout()
             plt.savefig("./homework/hw04/PDG_final_{}-{}.png".format(c[0], c[1]))
@@ -302,7 +310,64 @@ def test_PGD():
             print("Helsinki scores, c = {}".format(c))
             print(score_helsinki)
 
+    tifffile.imsave(
+        "./homework/hw04/htc2022_07c_90_BB2.tif", res_helsinki["Barzilai_and_Borwein_2"]
+    )
 
+    return
+
+
+def test_dataset():
+    ground = tifffile.imread(
+        "/srv/ceph/share-all/aomip/htc2022_ground_truth/htc2022_07a_recon.tif"
+    )
+
+    sino = {}
+    A = {}
+    solutions = {"GD": {}, "ISTA": {}, "PGD": {}}
+    scores = {"GD": {}, "ISTA": {}, "PGD": {}}
+    angles = [90, 60, 30]
+    solvers = ["GD", "ISTA", "PGD"]
+    nmax = 1000
+    x_shape = np.array([512, 512])
+    x0 = np.zeros(x_shape)
+
+    for angle in angles:
+        sino[angle], A[angle] = load_htc2022data(
+            "/srv/ceph/share-all/aomip/htc2022_test_data/htc2022_07a_full", angle
+        )
+        solutions["GD"][angle] = GD(
+            A[angle], sino[angle], x0, nmax=nmax, BB2=True
+        ).leastSquares()
+        solutions["ISTA"][angle] = ISTA(
+            A[angle], sino[angle], x0, nmax=nmax, BB2=True
+        ).leastSquares()
+        solutions["PGD"][angle] = PGD(
+            A[angle], sino[angle], x0, nmax=nmax, BB2=True
+        ).leastSquares()
+
+    for solver in solvers:
+        fig, ax = plt.subplots(3, 1)
+        i = 0
+        for angle in angles:
+            scores[solver][angle] = calculate_score(
+                segment(solutions[solver][angle]), segment(ground)
+            )
+            ax[i].imshow(solutions[solver][angle], cmap="gray")
+            ax[i].set_title(
+                "{}° arc, score: {:.2f}".format(angle, scores[solver][angle])
+            )
+            i += 1
+            tifffile.imwrite(
+                "./homework/hw04/htc2022_07a_{}_{}.tif".format(solver, angle),
+                solutions[solver][angle],
+            )
+        fig.suptitle("Final results, {}".format(solver))
+        plt.tight_layout()
+        plt.savefig("./homework/hw04/htc2022_07a_{}.png".format(solver))
+
+    print("Scores")
+    print(scores)
 
     return
 
@@ -311,8 +376,9 @@ def test_all():
     test_linesearch()
     test_ISTA()
     test_PGD()
+    test_dataset()
     return
 
 
 if __name__ == "__main__":
-    test_PGD()
+    test_dataset()

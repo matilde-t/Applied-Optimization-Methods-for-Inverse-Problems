@@ -11,7 +11,7 @@ class PGD:
         l=1e-3,
         nmax=1000,
         eps=1e-6,
-        c=[-np.inf, np.inf],
+        c=[0, np.inf],
         backtrack=False,
         BB1=False,
         BB2=False,

@@ -124,3 +124,25 @@ As we can see, the upper bound doesn't have an impact, but the non-negativity fa
 ## Part 2: Semi-Convergence
 
 ## Part 3: Challenge Dataset
+
+This time, I try to use the image 07 A, with 90°, 60° and 30° angles.
+
+I tried with backtracking, BB1 and BB2, and discovered that the best results were with BB2, so I will show those here.
+
+For ISTA, I simply restrict the negative, values, because as we've seen it's the most important improvement.
+
+These are the results for 1000 iterations:
+
+| Angle | Gradient Descent | ISTA | Projected Gradient Descent |
+|:---:|:---:|:---:|:---:|
+| $90°$ | $0.8134$ | $\boldsymbol{0.8771}$ | $0.8714$ |
+| $60°$ | $0.7058$ | $\boldsymbol{0.8216}$ | $0.8098$ |
+| $30°$ | $0.5763$ | $0.7457$ | $\boldsymbol{0.7471}$ |
+
+In bold the best scores. Unsurprisingly, a wider arc provides an easier reconstruction, and it seems that the regularization properties of ISTA and the negative values restricion help in improving the performance.
+
+![](htc2022_07a_GD.png)
+
+![](htc2022_07a_ISTA.png)
+
+![](htc2022_07a_PGD.png)
