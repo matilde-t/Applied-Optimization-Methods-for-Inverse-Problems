@@ -1,4 +1,4 @@
-from aomip import GD, ISTA
+from aomip import GD, ISTA, PGD
 import tifffile
 import matplotlib.pyplot as plt
 import numpy as np
@@ -232,11 +232,87 @@ def test_ISTA():
     return
 
 
+def test_PGD():
+    sino, A = load_htc2022data(
+        "/srv/ceph/share-all/aomip/htc2022_test_data/htc2022_07c_full", 90
+    )
+    x_shape = np.array([512, 512])
+
+    x0 = np.zeros(x_shape)
+
+    ground = tifffile.imread(
+        "/srv/ceph/share-all/aomip/htc2022_ground_truth/htc2022_07c_recon.tif"
+    )
+
+    nmax = 100
+    lb = [-np.inf, 0]
+    ub = [1, 2] #[50, 150, 250, np.inf]
+    for low in lb:
+        for up in ub:
+            c = [low, up]
+            pgd = {}
+            pgd["Default"] = PGD(A, sino, x0, verbose=True, nmax=nmax, c=c)
+            pgd["Line_Search"] = PGD(
+                A, sino, x0, verbose=True, backtrack=True, nmax=nmax, c=c
+            )
+            pgd["Barzilai_and_Borwein_1"] = PGD(
+                A, sino, x0, verbose=True, BB1=True, nmax=nmax, c=c
+            )
+            pgd["Barzilai_and_Borwein_2"] = PGD(
+                A, sino, x0, verbose=True, BB2=True, nmax=nmax, c=c
+            )
+
+            res_helsinki = {}
+            score_helsinki = {}
+            x_helsinki = {}
+            fig, ax = plt.subplots(4, 1)
+            i = 0
+            for pair in pgd.items():
+                res_helsinki[pair[0]], x_helsinki[pair[0]], _ = pair[1].leastSquares()
+                score_helsinki[pair[0]] = calculate_score(
+                    segment(res_helsinki[pair[0]]), segment(ground)
+                )
+                ax[i].plot(
+                    [np.linalg.norm(el - ground) ** 2 for el in x_helsinki[pair[0]]]
+                )
+                ax[i].set_title(
+                    pair[0] + ", final score: {:.2f}".format(score_helsinki[pair[0]])
+                )
+                ax[i].set_xlabel("Iteration")
+                i += 1
+            fig.suptitle(
+                "Convergence analysis (squared 2-norm error), c = {}".format(c)
+            )
+            plt.tight_layout()
+            plt.savefig("./homework/hw04/PDG_convergence_{}-{}.png".format(c[0], c[1]))
+            
+            fig, ax = plt.subplots(2, 2)
+            ax[0,0].imshow(res_helsinki["Default"], cmap="gray")
+            ax[0,0].set_title("Default, score: {:.2f}".format(score_helsinki["Default"]))
+            ax[0,1].imshow(res_helsinki["Line_Search"], cmap="gray")
+            ax[0,1].set_title("Line search, score: {:.2f}".format(score_helsinki["Line_Search"]))
+            ax[1,0].imshow(res_helsinki["Barzilai_and_Borwein_1"], cmap="gray")
+            ax[1,0].set_title("BB1, score: {:.2f}".format(score_helsinki["Barzilai_and_Borwein_1"]))
+            ax[1,1].imshow(res_helsinki["Barzilai_and_Borwein_2"], cmap="gray")
+            ax[1,1].set_title("BB2, score: {:.2f}".format(score_helsinki["Barzilai_and_Borwein_2"]))
+            fig.suptitle("Final results, c = {}".format(c))
+            plt.tight_layout()
+            plt.savefig("./homework/hw04/PDG_final_{}-{}.png".format(c[0], c[1]))
+
+            print("Helsinki scores, c = {}".format(c))
+            print(score_helsinki)
+
+
+
+    return
+
+
 def test_all():
     test_linesearch()
     test_ISTA()
+    test_PGD()
     return
 
 
 if __name__ == "__main__":
-    test_ISTA()
+    test_PGD()
