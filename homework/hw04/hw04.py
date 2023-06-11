@@ -347,7 +347,7 @@ def test_dataset():
         ).leastSquares()
 
     for solver in solvers:
-        fig, ax = plt.subplots(3, 1)
+        fig, ax = plt.subplots(1, 3)
         i = 0
         for angle in angles:
             scores[solver][angle] = calculate_score(

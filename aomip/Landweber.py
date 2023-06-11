@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def landweber(A, b, x0, nmax=1000, eps=1e-6, l=None):
     """
     Implement the Ladweber iteration.
@@ -14,6 +15,7 @@ def landweber(A, b, x0, nmax=1000, eps=1e-6, l=None):
         x0 = x
     print("Number of iterations: {}".format(i + 1))
     return x
+
 
 def sigma2(A, b0=None, nmax=100):
     """

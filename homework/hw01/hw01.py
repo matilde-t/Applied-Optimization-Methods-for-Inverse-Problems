@@ -183,9 +183,33 @@ def test_FilteredBackProjection():
     img_sci_no = iradon_sci(sino, np.linspace(0, arc, angles), filter_name=None)
     img_sci_ra = iradon_sci(sino, np.linspace(0, arc, angles), filter_name="ramp")
     img_sci_co = iradon_sci(sino, np.linspace(0, arc, angles), filter_name="cosine")
-    img_no = iradon(sino, sino_shape, phantom.shape, np.linspace(0, arc, angles), 1000, 150, filter=None)
-    img_ra = iradon(sino, sino_shape, phantom.shape, np.linspace(0, arc, angles), 1000, 150, filter="ram-lak")
-    img_co = iradon(sino, sino_shape, phantom.shape, np.linspace(0, arc, angles), 1000, 150, filter="cosine")
+    img_no = iradon(
+        sino,
+        sino_shape,
+        phantom.shape,
+        np.linspace(0, arc, angles),
+        1000,
+        150,
+        filter=None,
+    )
+    img_ra = iradon(
+        sino,
+        sino_shape,
+        phantom.shape,
+        np.linspace(0, arc, angles),
+        1000,
+        150,
+        filter="ram-lak",
+    )
+    img_co = iradon(
+        sino,
+        sino_shape,
+        phantom.shape,
+        np.linspace(0, arc, angles),
+        1000,
+        150,
+        filter="cosine",
+    )
     ax[0][0].imshow(img_sci_no, cmap="gray")
     ax[0][0].set_title("SciPy, no filter")
     ax[0][1].imshow(img_no, cmap="gray")
@@ -201,6 +225,7 @@ def test_FilteredBackProjection():
     plt.tight_layout()
     plt.savefig(cwd + "/homework/hw01/backProjection.png")
     plt.show()
+
 
 def test_all():
     test_flatFieldCorrection()

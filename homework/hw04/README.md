@@ -129,7 +129,7 @@ This time, I try to use the image 07 A, with 90°, 60° and 30° angles.
 
 I tried with backtracking, BB1 and BB2, and discovered that the best results were with BB2, so I will show those here.
 
-For ISTA, I simply restrict the negative, values, because as we've seen it's the most important improvement.
+For ISTA, I simply restrict the negative values, because as we've seen it's the most important improvement.
 
 These are the results for 1000 iterations:
 
