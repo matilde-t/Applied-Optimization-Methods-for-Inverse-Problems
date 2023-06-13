@@ -109,8 +109,15 @@ As we can see, the upper bound doesn't have an impact, but the non-negativity fa
 ![](PDG_convergence_0-inf.png)
 ![](PDG_final_0-inf.png)
 
-
 ## Part 2: Semi-Convergence
+
+For this task, I decided to use the Shepp-Logan phantom and Gaussian noise. 
+
+![](forwardProjection.png)
+
+![](semi_convergence.png)
+
+As we can see, the line search methods really exhibit this behaviour. I couldn't include BB2 because the growth was even worse.
 
 ## Part 3: Challenge Dataset
 

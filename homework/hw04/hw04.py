@@ -1,4 +1,4 @@
-from aomip import GD, ISTA, PGD
+from aomip import GD, ISTA, PGD, shepp_logan, radon, noise, XrayOperator
 import tifffile
 import matplotlib.pyplot as plt
 import numpy as np
@@ -194,7 +194,6 @@ def test_ISTA():
     print(score_helsinki)
 
     for pair in ista.items():
-
         ## Images
         fig, ax = plt.subplots(2, 2)
         ax[0, 0].imshow(res_helsinki[pair[0]], cmap="gray")
@@ -222,7 +221,12 @@ def test_ISTA():
 
     ## Convergence
     fig = plt.figure()
-    legend = ["Default", "Line Search", "Barzilai and Borwein 1", "Barzilai and Borwein 2"]
+    legend = [
+        "Default",
+        "Line Search",
+        "Barzilai and Borwein 1",
+        "Barzilai and Borwein 2",
+    ]
     for key in ista.keys():
         plt.plot([np.linalg.norm(el - ground) ** 2 for el in x_helsinki[key]])
     plt.xlabel("Iteration")
@@ -377,14 +381,70 @@ def test_dataset():
     return
 
 
+def test_semiConv():
+    arc = 360
+    angles = 420
+    sino_shape = [420]
+    shape = [512, 512]
+    phantom = shepp_logan(shape)
+    sino = radon(phantom, sino_shape, np.linspace(0, arc, angles), 1000, 150)
+    noisy_sino = noise(sino).gaussian()
+    fig, ax = plt.subplots(1, 3)
+    ax[0].imshow(phantom, cmap="gray")
+    ax[0].set_title("Phantom")
+    ax[1].imshow(sino, cmap="gray")
+    ax[1].set_title("Sinogram")
+    ax[2].imshow(noisy_sino, cmap="gray")
+    ax[2].set_title("Gaussian noise")
+    fig.suptitle("Forward projection")
+    plt.tight_layout()
+    plt.savefig("./homework/hw04/forwardProjection.png")
+    A = XrayOperator(shape, sino_shape, np.linspace(0, arc, angles), 1000, 150)
+    x0 = np.zeros(shape)
+    nmax = 30
+
+    solvers = {}
+    solvers["GD, default"] = GD(A, noisy_sino, x0, nmax=nmax, verbose=True)
+    solvers["ISTA, default"] = ISTA(A, noisy_sino, x0, nmax=nmax, verbose=True)
+    solvers["PGD, default"] = PGD(A, noisy_sino, x0, nmax=nmax, verbose=True)
+    solvers["GD, backtracking"] = GD(
+        A, noisy_sino, x0, nmax=nmax, verbose=True, backtrack=True
+    )
+    solvers["ISTA, backtracking"] = ISTA(
+        A, noisy_sino, x0, nmax=nmax, verbose=True, backtrack=True
+    )
+    solvers["PGD, backtracking"] = PGD(
+        A, noisy_sino, x0, nmax=nmax, verbose=True, backtrack=True
+    )
+    solvers["GD, BB1"] = GD(A, noisy_sino, x0, nmax=nmax, verbose=True, BB1=True)
+    solvers["ISTA, BB1"] = ISTA(A, noisy_sino, x0, nmax=nmax, verbose=True, BB1=True)
+    solvers["PGD, BB1"] = PGD(A, noisy_sino, x0, nmax=nmax, verbose=True, BB1=True)
+
+    solutions = {}
+    evolutions = {}
+    for solver in solvers.items():
+        solutions[solver[0]], evolutions[solver[0]], _ = solver[1].leastSquares()
+    fig = plt.figure()
+    legend = []
+    for solver in solvers.keys():
+        plt.plot([np.linalg.norm(el - phantom) ** 2 for el in evolutions[solver]])
+        legend.append(solver)
+    plt.xlabel("Iteration")
+    fig.suptitle("Convergence analysis (squared 2-norm error)")
+    plt.tight_layout(rect=[0, 0, 0.6, 1])
+    plt.legend(legend, bbox_to_anchor=(1.04, 1), borderaxespad=0)
+    plt.savefig("./homework/hw04/semi_convergence.png")
+    return
+
+
 def test_all():
     test_linesearch()
     test_ISTA()
     test_PGD()
     test_dataset()
+    test_semiConv()
     return
 
 
 if __name__ == "__main__":
-    test_ISTA()
-    test_PGD()
+    test_all()
