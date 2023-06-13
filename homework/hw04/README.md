@@ -82,30 +82,6 @@ For the creation of this algorithm, in the file `IterativeShrinkageThresholdingA
 
 I implemented this function in `ProjectedGradientDescent.py` following the same scheme as `IterativeShrinkageThresholdingAlgorithm.py`. I try to use the non-negativity projection and test some upper bounds. I observe the convergence speed and the score obtained after 100 iterations (I found out that they are enough to show the behaviour).To make the challenge more interesting, I use the usual 07 C sample from the dataset, but with a 90° angle.
 
-![](PDG_convergence_-inf-50.png)
-![](PDG_final_-inf-50.png)
-
-![](PDG_convergence_-inf-150.png)
-![](PDG_final_-inf-150.png)
-
-![](PDG_convergence_-inf-250.png)
-![](PDG_final_-inf-250.png)
-
-![](PDG_convergence_-inf-inf.png)
-![](PDG_final_-inf-inf.png)
-
-![](PDG_convergence_0-50.png)
-![](PDG_final_0-50.png)
-
-![](PDG_convergence_0-150.png)
-![](PDG_final_0-150.png)
-
-![](PDG_convergence_0-250.png)
-![](PDG_final_0-250.png)
-
-![](PDG_convergence_0-inf.png)
-![](PDG_final_0-inf.png)
-
 To recap these results, in this table we can see the scores of the various methods for a specific value interval:
 
 | Interval  | Default | Backtracking | BB1 | BB2 |
@@ -119,7 +95,20 @@ To recap these results, in this table we can see the scores of the various metho
 | $[0,250]$ | $0.4184$ | $0.9167$ | $0.9221$ | $0.9328$ |
 | $[0,\infty)$ | $0.4184$ | $0.9167$ | $0.9221$ | $0.9328$ |
 
-As we can see, the upper bound doesn't have an impact, but the non-negativity factor helps a lot.
+As we can see, the upper bound doesn't have an impact, but the non-negativity factor helps a lot. Given that the values are identical for most of these, I show just a couple of them here. You can find them all in the repository.
+
+![](PDG_convergence_-inf-50.png)
+![](PDG_final_-inf-50.png)
+
+![](PDG_convergence_-inf-inf.png)
+![](PDG_final_-inf-inf.png)
+
+![](PDG_convergence_0-50.png)
+![](PDG_final_0-50.png)
+
+![](PDG_convergence_0-inf.png)
+![](PDG_final_0-inf.png)
+
 
 ## Part 2: Semi-Convergence
 

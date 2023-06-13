@@ -194,6 +194,8 @@ def test_ISTA():
     print(score_helsinki)
 
     for pair in ista.items():
+
+        ## Images
         fig, ax = plt.subplots(2, 2)
         ax[0, 0].imshow(res_helsinki[pair[0]], cmap="gray")
         ax[0, 0].set_title(
@@ -218,13 +220,13 @@ def test_ISTA():
         plt.tight_layout()
         plt.savefig("./homework/hw04/ISTA_{}.png".format(pair[0]))
 
-    fig, ax = plt.subplots(4, 1)
-    i = 0
-    for pair in ista.items():
-        ax[i].plot([np.linalg.norm(el - ground) ** 2 for el in x_helsinki[pair[0]]])
-        ax[i].set_title(pair[0])
-        ax[i].set_xlabel("Iteration")
-        i += 1
+    ## Convergence
+    fig = plt.figure()
+    legend = ["Default", "Line Search", "Barzilai and Borwein 1", "Barzilai and Borwein 2"]
+    for key in ista.keys():
+        plt.plot([np.linalg.norm(el - ground) ** 2 for el in x_helsinki[key]])
+    plt.xlabel("Iteration")
+    plt.legend(legend)
     fig.suptitle("Convergence analysis (squared 2-norm error)")
     plt.tight_layout()
     plt.savefig("./homework/hw04/ISTA_convergence.png")
@@ -265,27 +267,30 @@ def test_PGD():
             res_helsinki = {}
             score_helsinki = {}
             x_helsinki = {}
-            fig, ax = plt.subplots(4, 1)
-            i = 0
+
+            ## Convergence
+            fig = plt.figure()
+            legend = []
             for pair in pgd.items():
                 res_helsinki[pair[0]], x_helsinki[pair[0]], _ = pair[1].leastSquares()
                 score_helsinki[pair[0]] = calculate_score(
                     segment(res_helsinki[pair[0]]), segment(ground)
                 )
-                ax[i].plot(
+                plt.plot(
                     [np.linalg.norm(el - ground) ** 2 for el in x_helsinki[pair[0]]]
                 )
-                ax[i].set_title(
+                legend.append(
                     pair[0] + ", final score: {:.2f}".format(score_helsinki[pair[0]])
                 )
-                ax[i].set_xlabel("Iteration")
-                i += 1
+            plt.xlabel("Iteration")
             fig.suptitle(
                 "Convergence analysis (squared 2-norm error), c = {}".format(c)
             )
+            plt.legend(legend)
             plt.tight_layout()
             plt.savefig("./homework/hw04/PDG_convergence_{}-{}.png".format(c[0], c[1]))
 
+            ## Images
             fig, ax = plt.subplots(2, 2)
             ax[0, 0].imshow(res_helsinki["Default"], cmap="gray")
             ax[0, 0].set_title(
@@ -310,7 +315,7 @@ def test_PGD():
             print("Helsinki scores, c = {}".format(c))
             print(score_helsinki)
 
-    tifffile.imsave(
+    tifffile.imwrite(
         "./homework/hw04/htc2022_07c_90_BB2.tif", res_helsinki["Barzilai_and_Borwein_2"]
     )
 
@@ -381,4 +386,5 @@ def test_all():
 
 
 if __name__ == "__main__":
-    test_dataset()
+    test_ISTA()
+    test_PGD()
