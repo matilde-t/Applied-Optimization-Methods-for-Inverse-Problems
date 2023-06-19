@@ -17,3 +17,4 @@ from .GradientDescent import *
 from .GaussianFilter import *
 from .IterativeShrinkageThresholdingAlgorithm import *
 from .ProjectedGradientDescent import *
+from .ProximalOperators import *
