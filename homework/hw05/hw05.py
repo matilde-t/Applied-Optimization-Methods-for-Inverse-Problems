@@ -1,4 +1,4 @@
-from aomip import ProximalOperators, PGM, GD
+from aomip import ProximalOperators, PGM, GD, ISTA
 import tifffile
 import matplotlib.pyplot as plt
 import numpy as np
@@ -319,14 +319,55 @@ def test_convergence():
     plt.tight_layout()
     plt.savefig("./homework/hw05/conv-PGM.png")
 
+    return
+
+
+def test_elastic_net():
+    sino, A = load_htc2022data(
+        "/srv/ceph/share-all/aomip/htc2022_test_data/htc2022_07a_full", 90
+    )
+    x_shape = np.array([512, 512])
+
+    x0 = np.zeros(x_shape)
+
+    ground = tifffile.imread(
+        "/srv/ceph/share-all/aomip/htc2022_ground_truth/htc2022_07a_recon.tif"
+    )
+
+    nmax = 100
+
+    solvers = {}
+    solvers["None"] = ISTA(A, sino, x0, nmax=nmax, verbose=True)
+    solvers["Backtracking"] = ISTA(A, sino, x0, backtrack=True, nmax=nmax, verbose=True)
+    solvers["BB1"] = ISTA(A, sino, x0, BB1=True, nmax=nmax, verbose=True)
+    solvers["BB2"] = ISTA(A, sino, x0, BB2=True, nmax=nmax, verbose=True)
+
+    for name, solver in solvers.items():
+        fig, ax = plt.subplots(3, 1)
+        img, x_vec, l_vec = solver.leastSquares()
+        ax[0].imshow(img, cmap="gray")
+        ax[0].set_title("Reconstruction")
+        ax[1].plot(l_vec)
+        ax[1].set_title("lambda")
+        ax[2].plot([np.linalg.norm(x - ground) ** 2 for x in x_vec])
+        ax[2].set_title("Error")
+        fig.suptitle(
+            name + ", score = {}".format(calculate_score(segment(img), segment(ground)))
+        )
+        plt.tight_layout()
+        plt.savefig("./homework/hw05/elastic-net-{}.png".format(name))
+
+    return
+
 
 def test_all():
     test_operators()
     test_PGM()
     test_PGM_fast()
     test_convergence()
+    test_elastic_net()
     return
 
 
 if __name__ == "__main__":
-    test_convergence()
+    test_elastic_net()

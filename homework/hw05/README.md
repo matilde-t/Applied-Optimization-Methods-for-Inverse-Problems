@@ -20,7 +20,7 @@ Here are the plots of these operators in the interval $[-10, 10]$, with various 
 
 For this task, I took inspiration from `IterativeShrinkageThresholdingAlgorithm.py` and generalized it in `ProximalGradientMehod.py`.
 
-Here are some results with different proximal operators.
+Here are some results with different proximal operators, with the 07A phantom in full angle.
 
 ![](proximal-Constant-backtracking.png)
 
@@ -66,8 +66,20 @@ In the case of $g(x)=\frac{1}{2}||Ax-b||_2^2$ and $h(x)=\frac{\beta}{2}||x||_2^2
 
 ![](conv-PGM.png)
 
-We can see that the PGM method converges quickly, but stalls after a short time, whereas GD converges more slowly but gets closer to the ground truth.
+We can see that the PGM method converges quickly, but stalls after a short time, whereas GD converges more slowly but gets closer to the ground truth. The reason for the faster convergence might be the constant projection on our allowed space, but this is also probably the reason why the convergence stalls after a few iterations.
 
 ### iv) Elastic Net Formulation
+
+In the case of the elatic-net formulation problem $f(x)=\frac{1}{2}||Ax-b||_2^2+\beta||x||_1+\frac{\tau}{2}||x||_2^2$, we can consider $g(x)=\frac{1}{2}||Ax-b||_2^2+\frac{\tau}{2}||x||_2^2$, i.e. the usual Tikhonov regularization problem, and $h(x)=\beta||x||_1$ as the proximal friendly part. For this purpose, I modify ISTA to accomodate also a Tikhonov problem. I also modified PGM to include this possibility out of the box, but I haven't implemented the L1 operator separately.
+
+![](elastic-net-None.png)
+
+![](elastic-net-Backtracking.png)
+
+![](elastic-net-BB1.png)
+
+![](elastic-net-BB2.png)
+
+In this case, I tried with the phantom 07A and a 90° angle, with 100 iterations. The results are quite interesting.
 
 ## Part 3: Restart Conditions

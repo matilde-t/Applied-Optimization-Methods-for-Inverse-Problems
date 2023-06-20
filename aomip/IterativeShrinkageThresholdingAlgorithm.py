@@ -1,4 +1,5 @@
 import numpy as np
+import scipy as sp
 
 
 class ISTA:
@@ -83,6 +84,15 @@ class ISTA:
         while f(x0 - alpha * p) > f(x0) - c * alpha * np.linalg.norm(p) ** 2:
             alpha = rho * alpha
         return alpha
+
+    def l2Norm(self, L=None, beta=1):
+        if L is None:
+            L = sp.sparse.eye(len(self.x0.flatten()))
+        df = (
+            lambda x: self.A.applyAdjoint(self.A.apply(x) - self.b).flatten()
+            + beta / 2 * L.T @ L @ x.flatten()
+        )
+        return self.ISTA(df)
 
 
 def soft(v, r):
