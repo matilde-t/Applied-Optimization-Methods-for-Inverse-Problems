@@ -2,41 +2,33 @@ import numpy as np
 
 
 class ProximalOperators:
-    def __init__(self):
-        pass
+    def __init__(self, sigma=1, y=0, prox_g=None, delta=0.1, l=1):
+        self.sigma = sigma
+        self.y = y
+        self.prox_g = prox_g
+        self.delta = delta
+        self.l = l
 
-    def indicator(self, x, c, sigma=None):
-        """
-        Indicator function of a interval c
-        """
-        return 0 if (x >= np.min(c) and x <= np.max(c)) else np.inf
-
-    def constant(self, x, sigma=None):
+    def constant(self, x):
         """
         Constant function (identity)
         """
         return x
 
-    def translation(self, x, prox_g, y, sigma=None):
+    def translation(self, x):
         """
         Proximal operator of f(x) = g(x - y)
         """
-        return y + prox_g(x - y, sigma)
+        return self.y + self.prox_g(x - self.y)
 
-    def l2(self, x, sigma, l=1):
+    def l2(self, x):
         """
         Proximal operator of f(x) = l/2 * ||x||^2
         """
-        return x / (1 + sigma * l)
+        return x / (1 + self.sigma * self.l)
 
-    def huber(self, x, delta, sigma):
+    def huber(self, x):
         """
         Proximal operator of f(x) = x^2/(2*delta) if |x| <= delta, else |x|
         """
-        return (1 - sigma / (max(np.linalg.norm(x), sigma) + delta)) * x
-
-    def l1(self, x, sigma):
-        """
-        L1 norm proximal operator (soft thresholding)
-        """
-        return np.sign(x) * np.maximum(np.abs(x) - sigma, 0)
+        return (1 - self.sigma / (np.maximum(np.abs(x), self.sigma) + self.delta)) * x
