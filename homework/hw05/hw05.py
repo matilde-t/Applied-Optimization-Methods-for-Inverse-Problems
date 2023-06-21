@@ -1,4 +1,4 @@
-from aomip import ProximalOperators, PGM, GD, ISTA
+from aomip import ProximalOperators, PGM, GD, ISTA, shepp_logan, XrayOperator, noise
 import tifffile
 import matplotlib.pyplot as plt
 import numpy as np
@@ -360,14 +360,174 @@ def test_elastic_net():
     return
 
 
+def test_restart():
+    x_shape = np.array([512, 512])
+    phantom = shepp_logan(x_shape)
+    arc = 360
+    angles = 420
+    sino_shape = [420]
+    A = XrayOperator(x_shape, sino_shape, np.linspace(0, arc, angles), 1000, 150)
+    sino = A.apply(phantom)
+    sino_noisy = noise(sino).gaussian()
+    fig, ax = plt.subplots(3, 1)
+    ax[0].imshow(phantom, cmap="gray")
+    ax[0].set_title("Shepp Logan phantom")
+    ax[1].imshow(sino, cmap="gray")
+    ax[1].set_title("Sinogram")
+    ax[2].imshow(sino_noisy, cmap="gray")
+    ax[2].set_title("Noisy sinogram")
+    plt.tight_layout()
+    plt.savefig("./homework/hw05/restart-sino.png")
+
+    f = lambda x: 0.5 * np.linalg.norm(A.apply(x) - sino_noisy) ** 2
+    x0 = np.zeros(x_shape)
+
+    ## GD with backtracking
+    nmax = 200
+    img, x_vec, l_vec = GD(
+        A, sino_noisy, x0, nmax=nmax, backtrack=True, verbose=True
+    ).leastSquares()
+    fig, ax = plt.subplots(3, 1)
+    ax[0].imshow(img, cmap="gray")
+    ax[0].set_title("Reconstruction")
+    ax[1].plot(l_vec)
+    ax[1].set_title("lambda")
+    ax[2].plot([f(x) for x in x_vec])
+    ax[2].set_title("Objective function")
+    fig.suptitle("GD with backtracking")
+    plt.tight_layout()
+    plt.savefig("./homework/hw05/restart-no-GD-backtrack.png")
+
+    x_tot = []
+    l_tot = []
+    for i in range(4):
+        nmax = 50
+        img, x_vec, l_vec = GD(
+            A, sino_noisy, x0, nmax=nmax, backtrack=True, verbose=True
+        ).leastSquares()
+        x_tot += x_vec
+        l_tot += l_vec
+        x0 = img
+    fig, ax = plt.subplots(3, 1)
+    ax[0].imshow(img, cmap="gray")
+    ax[0].set_title("Reconstruction")
+    ax[1].plot(l_tot)
+    ax[1].set_title("lambda")
+    ax[2].plot([f(x) for x in x_tot])
+    ax[2].set_title("Objective function")
+    fig.suptitle("GD with backtracking, restart every 50 iterations")
+    plt.tight_layout()
+    plt.savefig("./homework/hw05/restart-GD-backtrack.png")
+
+    ## FPGM1 with constant
+    nmax = 200
+    img, x_vec, l_vec = PGM(
+        A,
+        sino_noisy,
+        x0,
+        ProximalOperators().constant,
+        nmax=nmax,
+        verbose=True,
+        fast1=True,
+    ).leastSquares()
+    fig, ax = plt.subplots(3, 1)
+    ax[0].imshow(img, cmap="gray")
+    ax[0].set_title("Reconstruction")
+    ax[1].plot(l_vec)
+    ax[1].set_title("lambda")
+    ax[2].plot([f(x) for x in x_vec])
+    ax[2].set_title("Objective function")
+    fig.suptitle("FPGM1 with constant function")
+    plt.tight_layout()
+    plt.savefig("./homework/hw05/restart-no-FPGM1.png")
+
+    x_tot = []
+    l_tot = []
+    for i in range(4):
+        nmax = 50
+        img, x_vec, l_vec = PGM(
+            A,
+            sino_noisy,
+            x0,
+            ProximalOperators().constant,
+            nmax=nmax,
+            verbose=True,
+            fast1=True,
+        ).leastSquares()
+        x_tot += x_vec
+        l_tot += l_vec
+        x0 = img
+    fig, ax = plt.subplots(3, 1)
+    ax[0].imshow(img, cmap="gray")
+    ax[0].set_title("Reconstruction")
+    ax[1].plot(l_tot)
+    ax[1].set_title("lambda")
+    ax[2].plot([f(x) for x in x_tot])
+    ax[2].set_title("Objective function")
+    fig.suptitle("FPGM1 with constant function, restart every 50 iterations")
+    plt.tight_layout()
+    plt.savefig("./homework/hw05/restart-FPGM1.png")
+
+    ## FPGM2 with Huber
+    nmax = 200
+    img, x_vec, l_vec = PGM(
+        A,
+        sino_noisy,
+        x0,
+        ProximalOperators(sigma=128, delta=0.1).huber,
+        nmax=nmax,
+        verbose=True,
+        fast2=True,
+    ).leastSquares()
+    fig, ax = plt.subplots(3, 1)
+    ax[0].imshow(img, cmap="gray")
+    ax[0].set_title("Reconstruction")
+    ax[1].plot(l_vec)
+    ax[1].set_title("lambda")
+    ax[2].plot([f(x) for x in x_vec])
+    ax[2].set_title("Objective function")
+    fig.suptitle("FPGM2 with huber function")
+    plt.tight_layout()
+    plt.savefig("./homework/hw05/restart-no-FPGM2.png")
+
+    x_tot = []
+    l_tot = []
+    for i in range(4):
+        nmax = 50
+        img, x_vec, l_vec = PGM(
+            A,
+            sino_noisy,
+            x0,
+            ProximalOperators(sigma=128, delta=0.1).huber,
+            nmax=nmax,
+            verbose=True,
+            fast1=True,
+        ).leastSquares()
+        x_tot += x_vec
+        l_tot += l_vec
+        x0 = img
+    fig, ax = plt.subplots(3, 1)
+    ax[0].imshow(img, cmap="gray")
+    ax[0].set_title("Reconstruction")
+    ax[1].plot(l_tot)
+    ax[1].set_title("lambda")
+    ax[2].plot([f(x) for x in x_tot])
+    ax[2].set_title("Objective function")
+    fig.suptitle("FPGM2 with huber function, restart every 50 iterations")
+    plt.tight_layout()
+    plt.savefig("./homework/hw05/restart-FPGM2.png")
+    return
+
+
 def test_all():
     test_operators()
     test_PGM()
     test_PGM_fast()
     test_convergence()
     test_elastic_net()
+    test_restart()
     return
 
 
 if __name__ == "__main__":
-    test_elastic_net()
+    test_all()

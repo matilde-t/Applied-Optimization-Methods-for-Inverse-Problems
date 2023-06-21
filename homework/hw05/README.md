@@ -83,3 +83,17 @@ In the case of the elatic-net formulation problem $f(x)=\frac{1}{2}||Ax-b||_2^2+
 In this case, I tried with the phantom 07A and a 90° angle, with 100 iterations. The results are quite interesting.
 
 ## Part 3: Restart Conditions
+
+For this experiment, I use the Shepp Logan phantom with Gaussian noise. After many tries, I have to say that I cannot find significant changes in any of the methods, as we can see in the following plots.
+
+![](restart-no-GD-backtrack.png)
+
+![](restart-GD-backtrack.png)
+
+![](restart-no-FPGM1.png)
+
+![](restart-FPGM1.png)
+
+![](restart-no-FPGM2.png)
+
+![](restart-FPGM2.png)
