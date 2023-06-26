@@ -2,7 +2,7 @@ import numpy as np
 import scipy as sp
 
 
-class PGM:
+class POGM:
     def __init__(
         self,
         A=None,
@@ -16,8 +16,6 @@ class PGM:
         BB1=False,
         BB2=False,
         verbose=False,
-        fast1=False,
-        fast2=False,
     ):
         self.A = A
         self.b = b
@@ -30,14 +28,12 @@ class PGM:
         self.BB1 = BB1
         self.BB2 = BB2
         self.verbose = verbose
-        self.fast1 = fast1
-        self.fast2 = fast2
 
-    def PGM(self, df, f=None, x0=None, function=None):
+    def POGM(self, df, f=None, x0=None, function=None):
         """
-        PGM algorithm.
+        POGM algorithm.
         """
-        print("Starting PGM")
+        print("Starting POGM")
         i = 0
         if function is not None:
             self.function = function
@@ -46,8 +42,11 @@ class PGM:
         shape = x0.shape
         x0 = x0.flatten()
         z0 = x0.copy()
-        t0 = 1
+        omega0 = x0.copy()
+        theta0 = 1
+        gamma0 = 1
         l = self.l
+        theta = theta0
         if self.verbose:
             x_vec = []
             l_vec = []
@@ -58,18 +57,20 @@ class PGM:
             if self.backtrack:
                 l = self.backtracking(df, f, x0)
             ## update rule
-            if self.fast1 or self.fast2:
-                if self.fast1:
-                    alpha = (i - 1) / (i + 2)
-                if self.fast2:
-                    t = (1 + np.sqrt(1 + 4 * t0**2)) / 2
-                    alpha = (t0 - 1) / t
-                    t0 = t
-                z = self.function(x0 - l * df(x0))
-                x = z + alpha * (z - z0)
-                z0 = z
+            if i == self.nmax - 1:
+                theta = 0.5 * (1 + np.sqrt(8 * theta0**2 + 1))
             else:
-                x = self.function(x0 - l * df(x0))
+                theta = 0.5 * (1 + np.sqrt(4 * t0**2 + 1))
+            gamma = 1 / l(2 * theta0 + theta - 1) / theta
+            omega = x0 - 1 / l * df(x0)
+            z = (
+                omega
+                + (theta0 - 1) / theta * (omega - omega0)
+                + theta0 / theta * (omega - x0)
+                + (theta0 - 1) / (l * gamma0 * theta) * (z0 - x0)
+            )
+            x = function(z)
+            i += 1
             ##
             if self.BB1:
                 s = x - x0
@@ -79,9 +80,14 @@ class PGM:
                 s = x - x0
                 y = df(x) - df(x0)
                 l = np.dot(s, s) / np.dot(s, y)
+            ## exchange values
+            theta0 = theta
+            gamma0 = gamma
+            omega0 = omega
+            z0 = z
             x0 = x
-            i += 1
-        print("PGM finished after {} iterations".format(i))
+
+        print("POGM finished after {} iterations".format(i))
         if self.verbose:
             return x0.reshape(shape), x_vec, l_vec
         else:
@@ -90,7 +96,7 @@ class PGM:
     def leastSquares(self):
         df = lambda x: self.A.applyAdjoint(self.A.apply(x) - self.b).flatten()
         f = lambda x: 0.5 * np.linalg.norm(self.A.apply(x) - self.b) ** 2
-        return self.PGM(df, f)
+        return self.POGM(df, f)
 
     def backtracking(self, df, f, x0, rho=0.5, c=0.5):
         p = df(x0)
@@ -106,4 +112,4 @@ class PGM:
             lambda x: self.A.applyAdjoint(self.A.apply(x) - self.b).flatten()
             + beta / 2 * L.T @ L @ x.flatten()
         )
-        return self.PGM(df)
+        return self.POGM(df)
