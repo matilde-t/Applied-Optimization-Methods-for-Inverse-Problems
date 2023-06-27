@@ -18,6 +18,7 @@ class PGM:
         verbose=False,
         fast1=False,
         fast2=False,
+        nonneg=False,
     ):
         self.A = A
         self.b = b
@@ -32,6 +33,7 @@ class PGM:
         self.verbose = verbose
         self.fast1 = fast1
         self.fast2 = fast2
+        self.nonneg = nonneg
 
     def PGM(self, df, f=None, x0=None, function=None):
         """
@@ -70,6 +72,8 @@ class PGM:
                 z0 = z
             else:
                 x = self.function(x0 - l * df(x0))
+            if self.nonneg:
+                x = np.maximum(x, 0)
             ##
             if self.BB1:
                 s = x - x0

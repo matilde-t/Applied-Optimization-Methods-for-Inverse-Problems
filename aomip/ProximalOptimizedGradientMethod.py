@@ -16,6 +16,7 @@ class POGM:
         BB1=False,
         BB2=False,
         verbose=False,
+        nonneg=False,
     ):
         self.A = A
         self.b = b
@@ -28,6 +29,7 @@ class POGM:
         self.BB1 = BB1
         self.BB2 = BB2
         self.verbose = verbose
+        self.nonneg = nonneg
 
     def POGM(self, df, f=None, x0=None, function=None):
         """
@@ -40,13 +42,13 @@ class POGM:
         if self.x0 is not None:
             x0 = self.x0.copy()
         shape = x0.shape
+        ## initialization
         x0 = x0.flatten()
         z0 = x0.copy()
         omega0 = x0.copy()
         theta0 = 1
         gamma0 = 1
-        l = self.l
-        theta = theta0
+        l = 1 / self.l
         if self.verbose:
             x_vec = []
             l_vec = []
@@ -60,26 +62,28 @@ class POGM:
             if i == self.nmax - 1:
                 theta = 0.5 * (1 + np.sqrt(8 * theta0**2 + 1))
             else:
-                theta = 0.5 * (1 + np.sqrt(4 * t0**2 + 1))
-            gamma = 1 / l(2 * theta0 + theta - 1) / theta
+                theta = 0.5 * (1 + np.sqrt(4 * theta0**2 + 1))
+            gamma = 1 / l * (2 * theta0 + theta - 1) / theta
             omega = x0 - 1 / l * df(x0)
             z = (
                 omega
-                + (theta0 - 1) / theta * (omega - omega0)
-                + theta0 / theta * (omega - x0)
-                + (theta0 - 1) / (l * gamma0 * theta) * (z0 - x0)
+                + (theta0 - 1) / theta * (omega - omega0)  # Nesterov
+                + theta0 / theta * (omega - x0)  # OGM
+                + (theta0 - 1) / (l * gamma0 * theta) * (z0 - x0)  # POGM
             )
-            x = function(z)
+            x = self.function(z, gamma)
+            if self.nonneg:
+                x = np.maximum(x, 0)
             i += 1
             ##
             if self.BB1:
                 s = x - x0
                 y = df(x) - df(x0)
-                l = np.dot(s, y) / np.dot(y, y)
+                l = 1 / (np.dot(s, y) / np.dot(y, y))
             if self.BB2:
                 s = x - x0
                 y = df(x) - df(x0)
-                l = np.dot(s, s) / np.dot(s, y)
+                l = 1 / (np.dot(s, s) / np.dot(s, y))
             ## exchange values
             theta0 = theta
             gamma0 = gamma

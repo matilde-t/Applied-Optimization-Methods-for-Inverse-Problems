@@ -19,3 +19,4 @@ from .IterativeShrinkageThresholdingAlgorithm import *
 from .ProjectedGradientDescent import *
 from .ProximalOperators import *
 from .ProximalGradientMethod import *
+from .ProximalOptimizedGradientMethod import *

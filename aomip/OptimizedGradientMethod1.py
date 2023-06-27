@@ -3,23 +3,32 @@ import scipy as sp
 
 
 class OGM1:
-    def __init__(self, A, b, x0, l=1e-3, nmax=1000, theta0=1):
+    def __init__(self, A, b, x0, l=1e-3, nmax=1000, theta0=1, verbose=False, nonneg=False):
         self.A = A
         self.b = b
         self.x0 = x0
         self.l = l
         self.nmax = nmax
         self.theta0 = theta0
+        self.verbose = verbose
+        self.nonneg = nonneg
 
     def OGM1(self, df):
         """
         Optimized Gradient Method 1, based on the paper by Kim and Fessler.
         """
         print("Starting Optimized Gradient Method 1")
+        shape = self.x0.shape
         x0 = self.x0.copy().flatten()
         theta0 = self.theta0
         y0 = x0
+        if self.verbose:
+            x_vec = []
+            l_vec = []
         for i in range(0, self.nmax):
+            if self.verbose:
+                x_vec.append(x0.reshape(shape))
+                l_vec.append(self.l)
             y = x0 - self.l * df(x0)
             theta = (1 + np.sqrt(1 + 4 * theta0**2)) / 2
             x = y + (theta0 - 1) / theta * (y - y0) + theta0 / theta * (y - x0)
@@ -28,7 +37,13 @@ class OGM1:
             x0 = x
         theta = (1 + np.sqrt(1 + 8 * theta0**2)) / 2
         x = y + (theta0 - 1) / theta * (y - y0) + theta0 / theta * (y - x0)
-        return x.reshape(self.x0.shape)
+        if self.nonneg:
+            x0 = np.maximum(x0, 0)
+        print("Finished Optimized Gradient Method 1")
+        if self.verbose:
+            return x0.reshape(shape), x_vec, l_vec
+        else:
+            return x0.reshape(shape)
 
     def leastSquares(self):
         """
