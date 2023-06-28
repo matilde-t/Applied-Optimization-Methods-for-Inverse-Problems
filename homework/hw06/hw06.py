@@ -1,4 +1,4 @@
-from aomip import ProximalOperators, PGM, POGM, OGM1
+from aomip import ProximalOperators, PGM, POGM, OGM1, load_lowdose_data
 import tifffile
 import matplotlib.pyplot as plt
 import numpy as np
@@ -103,10 +103,40 @@ def test_POGM():
     return
 
 
+def test_lowDose():
+    for i in [0, 10, 20, 30]:
+        sino, A, img = load_lowdose_data(
+            "/srv/ceph/share-all/aomip/mayo_clinical/out/L506_flat_fan_projections_fd.tif",
+            i,
+        )
+        fig, ax = plt.subplots(2, 1)
+        ax[0].imshow(sino, cmap="gray")
+        ax[0].set_title("{}-th slice".format(i))
+        ax[1].imshow(img, cmap="gray")
+        fig.suptitle("Full dose")
+        fig.tight_layout()
+        fig.savefig("./homework/hw06/2_full_dose_{}.png".format(i))
+
+    for i in [0, 10, 20, 30]:
+        sino, A, img = load_lowdose_data(
+            "/srv/ceph/share-all/aomip/mayo_clinical/out/L506_flat_fan_projections_qd.tif",
+            i,
+        )
+        fig, ax = plt.subplots(2, 1)
+        ax[0].imshow(sino, cmap="gray")
+        ax[0].set_title("{}-th slice".format(i))
+        ax[1].imshow(img, cmap="gray")
+        fig.suptitle("Low dose")
+        fig.tight_layout()
+        fig.savefig("./homework/hw06/2_low_dose_{}.png".format(i))
+    return
+
+
 def test_all():
     test_POGM()
+    test_lowDose()
     return
 
 
 if __name__ == "__main__":
-    test_POGM()
+    test_lowDose()

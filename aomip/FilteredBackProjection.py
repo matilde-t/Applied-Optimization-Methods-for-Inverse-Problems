@@ -1,5 +1,5 @@
 import numpy as np
-from aomip import XrayOperator
+from .XrayOperator import XrayOperator
 
 
 def iradon(

@@ -36,4 +36,24 @@ In bold the best score.
 
 ## Part 2: Expectation Maximization
 
+We did this homework in class. You can see the results under `lesson/XLFM_exercise`.
+
 ## Part 3: Low Dose X-ray CT
+
+I put the provided snippets into `LowDoseRead.py` file, taking inspiration from `challenge/utils.py` in order to directly obtain the sinogram and XrayOperator. I needed to bin the sinogram because when I tried to backproject I was going out of memory: to compensate for this, I consider every second angle in the angles list. I also return an initial filtered backprojection, to see what I am doing.
+
+![](2_full_dose_0.png)
+
+![](2_full_dose_10.png)
+
+![](2_full_dose_20.png)
+
+![](2_full_dose_30.png)
+
+![](2_low_dose_0.png)
+
+![](2_low_dose_10.png)
+
+![](2_low_dose_20.png)
+
+![](2_low_dose_30.png)
