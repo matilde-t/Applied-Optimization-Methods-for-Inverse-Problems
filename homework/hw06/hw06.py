@@ -1,4 +1,13 @@
-from aomip import ProximalOperators, PGM, POGM, OGM1, load_lowdose_data
+from aomip import (
+    ProximalOperators,
+    PGM,
+    POGM,
+    OGM1,
+    load_lowdose_data,
+    absorptionToTransmission,
+    GD,
+    ISTA,
+)
 import tifffile
 import matplotlib.pyplot as plt
 import numpy as np
@@ -104,32 +113,97 @@ def test_POGM():
 
 
 def test_lowDose():
+    errors = []
     for i in [0, 10, 20, 30]:
-        sino, A, img = load_lowdose_data(
-            "/srv/ceph/share-all/aomip/mayo_clinical/out/L506_flat_fan_projections_fd.tif",
+        fsino, _, fimg = load_lowdose_data(
+            "/srv/ceph/share-all/aomip/mayo_clinical/out/L067_flat_fan_projections_fd.tif",
             i,
         )
-        fig, ax = plt.subplots(2, 1)
-        ax[0].imshow(sino, cmap="gray")
-        ax[0].set_title("{}-th slice".format(i))
-        ax[1].imshow(img, cmap="gray")
-        fig.suptitle("Full dose")
-        fig.tight_layout()
-        fig.savefig("./homework/hw06/2_full_dose_{}.png".format(i))
+        ffig, fax = plt.subplots(2, 1)
+        fax[0].imshow(fsino, cmap="gray")
+        fax[0].set_title("{}-th slice".format(i))
+        fax[1].imshow(fimg, cmap="gray")
+        ffig.suptitle("Full dose")
+        ffig.tight_layout()
+        ffig.savefig("./homework/hw06/2_full_dose_{}.png".format(i))
 
-    for i in [0, 10, 20, 30]:
-        sino, A, img = load_lowdose_data(
-            "/srv/ceph/share-all/aomip/mayo_clinical/out/L506_flat_fan_projections_qd.tif",
+        qsino, A_, qimg = load_lowdose_data(
+            "/srv/ceph/share-all/aomip/mayo_clinical/out/L067_flat_fan_projections_qd.tif",
             i,
         )
-        fig, ax = plt.subplots(2, 1)
-        ax[0].imshow(sino, cmap="gray")
-        ax[0].set_title("{}-th slice".format(i))
-        ax[1].imshow(img, cmap="gray")
-        fig.suptitle("Low dose")
-        fig.tight_layout()
-        fig.savefig("./homework/hw06/2_low_dose_{}.png".format(i))
+        qfig, qax = plt.subplots(2, 1)
+        qax[0].imshow(qsino, cmap="gray")
+        qax[0].set_title("{}-th slice".format(i))
+        qax[1].imshow(qimg, cmap="gray")
+        qfig.suptitle("Low dose")
+        qfig.tight_layout()
+        qfig.savefig("./homework/hw06/2_low_dose_{}.png".format(i))
+
+        errors.append(np.linalg.norm(fimg - qimg) / np.linalg.norm(fimg) * 100)
+    print(errors)
+
+    _, _, ground = load_lowdose_data(
+        "/srv/ceph/share-all/aomip/mayo_clinical/out/L067_flat_fan_projections_fd.tif",
+        10,
+    )
+    qsino, A, qimg = load_lowdose_data(
+        "/srv/ceph/share-all/aomip/mayo_clinical/out/L067_flat_fan_projections_qd.tif",
+        10,
+    )
+    x0 = np.zeros(qimg.shape)
+
+    scores = {}
+    scores["Backprojection"] = calculate_score(segment(ground), segment(qimg))
+    solvers = {}
+    solvers["GD_backtrack"] = GD(A, qsino, x0, nmax=100, backtrack=True)
+    solvers["GD_BB1"] = GD(A, qsino, x0, nmax=100, BB1=True)
+    solvers["ISTA_backtrack"] = ISTA(A, qsino, x0, nmax=100, backtrack=True)
+    solvers["ISTA_BB1"] = ISTA(A, qsino, x0, nmax=100, BB1=True)
+
+    fig, ax = plt.subplots(2, 2)
+    i = 0
+    for solver in solvers.items():
+        img = solver[1].leastSquares()
+        scores[solver[0]] = calculate_score(segment(ground), segment(img))
+        ax[i // 2, i % 2].imshow(img, cmap="gray")
+        ax[i // 2, i % 2].set_title(
+            solver[0] + ", score: {:.4f}".format(scores[solver[0]])
+        )
+        i += 1
+    fig.suptitle("Reconstructions, least squares")
+    fig.tight_layout()
+    fig.savefig("./homework/hw06/2_scores_LS.png")
+    print(scores)
+
+    qsino = normalize(qsino)
+    qsino = absorptionToTransmission(qsino)
+    df = lambda x: A.applyAdjoint(qsino - np.exp(-A.apply(x))).flatten()
+    scores = {}
+    scores["Backprojection"] = calculate_score(segment(ground), segment(qimg))
+    solvers = {}
+    solvers["GD"] = GD(x0=x0, nmax=100)
+    solvers["ISTA"] = ISTA(x0=x0, nmax=100)
+
+    fig, ax = plt.subplots(2, 1)
+    i = 0
+    for solver in solvers.items():
+        if solver[0][0:2] == "GD":
+            img = solver[1].gradDesc(df)
+        else:
+            img = solver[1].ISTA(df)
+        scores[solver[0]] = calculate_score(segment(ground), segment(img))
+        ax[i].imshow(img, cmap="gray")
+        ax[i].set_title(solver[0] + ", score: {:.4f}".format(scores[solver[0]]))
+        i += 1
+    fig.suptitle("Reconstructions, log likelihood")
+    fig.tight_layout()
+    fig.savefig("./homework/hw06/2_scores_LL.png")
+    print(scores)
     return
+
+
+def normalize(img):
+    return (img - np.min(img)) / (np.max(img) - np.min(img))
 
 
 def test_all():
@@ -139,4 +213,4 @@ def test_all():
 
 
 if __name__ == "__main__":
-    test_lowDose()
+    test_all()

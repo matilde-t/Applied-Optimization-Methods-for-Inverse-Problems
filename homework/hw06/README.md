@@ -57,3 +57,24 @@ I put the provided snippets into `LowDoseRead.py` file, taking inspiration from 
 ![](2_low_dose_20.png)
 
 ![](2_low_dose_30.png)
+
+We can see that the difference between the low-dose and full-dose data is hardly noticeable. The relative error for the slices is in this table, for a simple backprojection with Ram-Lak filter.
+
+| Slice | Relative error |
+| :---: | :---: |
+| 0  | 8.67% |
+| 10 | 6.87% |
+| 20 | 7.16% |
+| 30 | 7.72% |
+
+Probably the relative  error is a bit higher in the first slice due to the black bands resulting from the conversion from helical trajectories with a curved detector to circular trajectories with a flat detector.
+
+For the reconstruction I decided to concentrate on the slice 10, given that it seems the best-behaved one. In oder not to have scale problems, here I use the score as a metric. The score of the filtered backprojection, using the full dose's filtered backprojection as the ground truth, is already quite good, with a value of **0.9857**. It is quite hard to do better: here I tried a couple of methods, but every one achieves a lower score.
+
+![](2_scores_LS.png)
+
+With the log likelihood I get comparable results. I had to set $I_0$ to 1, instead of $1e^8$ as written in the assignment.
+
+![](2_scores_LL.png)
+
+Given that I had to use adaptive step sizes with least squares and I'm not using them with the log likelihood and the results are comparable, I can say that probably the log likelihood works better.

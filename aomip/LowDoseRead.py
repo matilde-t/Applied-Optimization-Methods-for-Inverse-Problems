@@ -28,7 +28,7 @@ def load_lowdose_data(file, idx):
     sino = slice(data, idx)
     sino = binning(sino)
     sino = sino.transpose(1, 0)
-    sino = np.flip(sino, axis=1)
+    # sino = np.flip(sino, axis=1)
 
     # extract angles in degree
     angles = np.degrees(np.array(metadata["angles"])[: metadata["rotview"]])
@@ -44,8 +44,8 @@ def load_lowdose_data(file, idx):
     det_spacing = vox_scaling * metadata["du"]
 
     # distances from source to center, and center to detector
+    dc2d = vox_scaling * metadata["ddo"] 
     ds2c = vox_scaling * metadata["dso"]
-    dc2d = vox_scaling * metadata["ddo"]
 
     vol_shape = [512] * 2
     sino_shape = [det_count[0]]
