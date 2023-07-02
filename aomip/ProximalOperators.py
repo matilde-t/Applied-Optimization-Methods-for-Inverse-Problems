@@ -36,3 +36,25 @@ class ProximalOperators:
         if sigma is not None:
             self.sigma = sigma
         return (1 - self.sigma / (np.maximum(np.abs(x), self.sigma) + self.delta)) * x
+
+    def l21(self, x, sigma=None):
+        """
+        Proximal operator of f(x) = l * ||x||_21
+        """
+        if sigma is not None:
+            self.sigma = sigma
+        return (1 - self.l * self.sigma / np.maximum(np.linalg.norm(x), 0)) * x
+
+    def l11(self, x, sigma=None):
+        """
+        Proximal operator of f(x) = l * ||x||_11
+        """
+        if sigma is not None:
+            self.sigma = sigma
+        return self.soft(x, self.sigma * self.l)
+
+    def soft(self, v, r):
+        """
+        Soft thresholding operator.
+        """
+        return np.sign(v) * np.maximum(np.abs(v) - r, 0)
