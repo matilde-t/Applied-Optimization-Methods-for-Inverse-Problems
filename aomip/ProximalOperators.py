@@ -2,7 +2,7 @@ import numpy as np
 
 
 class ProximalOperators:
-    def __init__(self, sigma=1, y=0, prox_g=None, delta=0.1, l=1):
+    def __init__(self, sigma=1e-3, y=0, prox_g=None, delta=0.1, l=1):
         self.sigma = sigma
         self.y = y
         self.prox_g = prox_g

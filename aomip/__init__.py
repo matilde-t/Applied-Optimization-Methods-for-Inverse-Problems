@@ -4,11 +4,10 @@ from .ConjugateGradientDescent import *
 from .FilteredBackProjection import *
 from .FlatFieldCorrection import *
 from .GaussianFilter import *
-from .GradientDescent import *
 from .GradientDescentClass import *
 from .IterativeShrinkageThresholdingAlgorithm import *
-from .Landweber import *
 from .LandweberClass import *
+from .LinearADMM import *
 from .LowDoseRead import *
 from .NegativeLogTransform import *
 from .Noise import *
