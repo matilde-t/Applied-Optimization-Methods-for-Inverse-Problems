@@ -34,6 +34,4 @@ As we can see, there is basically no difference for different values of $\tau$, 
 
 ### ii) TV regularization
 
-
-
 ## Part 3: Challenge data

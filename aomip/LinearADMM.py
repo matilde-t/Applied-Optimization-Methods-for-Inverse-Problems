@@ -53,7 +53,7 @@ class ADMM:
         return x0.reshape(shape)
 
     def LASSO(self, tau=None, beta=1):
-        self.prox_f = PO().l11
+        self.prox_f = PO(l=beta).l11
         self.prox_g = PO(prox_g=PO().l2, y=self.b).translation
         norm = self.powerIteration()
         if tau is not None:

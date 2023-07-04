@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def forward_diff(x, axis=-1, sampling=1):
     """Apply forward differences to any chosen axis of the given input array
     Notes
@@ -19,6 +20,7 @@ def forward_diff(x, axis=-1, sampling=1):
     # swap axis back to original position
     return y.swapaxes(axis, -1)
 
+
 def adjoint_forward_diff(x, axis=-1):
     """Apply the adjoint of the forward differences to any chosen axis of
     the given input array
@@ -29,6 +31,7 @@ def adjoint_forward_diff(x, axis=-1):
     y[..., 1:] += x[..., :-1]
     return y.swapaxes(axis, -1)
 
+
 class FirstDerivative:
     """Operator which applies finite differences to the given dimensions
     Notes
@@ -36,6 +39,7 @@ class FirstDerivative:
     This operator computed the finite differences lazily, i.e. doesn't construct
     a matrix and consumes unnecessary memory
     """
+
     def apply(self, x):
         dim = x.ndim
         grad = np.zeros((dim,) + x.shape)
