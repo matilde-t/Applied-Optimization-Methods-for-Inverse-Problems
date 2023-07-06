@@ -1,4 +1,4 @@
-from aomip import ADMM
+from aomip import ADMM, XrayOperator
 import tifffile
 import matplotlib.pyplot as plt
 import numpy as np
@@ -38,7 +38,7 @@ def test_ADMM_LASSO():
     nmax = 100
 
     admm = ADMM(A, sino, x0, nmax=nmax)
-    
+
     for tau in np.logspace(-3, 6, 10):
         img = admm.LASSO(tau=tau)
         fig, ax = plt.subplots(1, 1)
@@ -54,10 +54,44 @@ def test_ADMM_LASSO():
 
 
 def test_ADMM_TV():
-    img = smooth(512)
-    plt.imshow(img)
-    plt.axis("off")
-    plt.savefig("./homework/hw07/1_original.png")
+    sino, A = load_htc2022data(
+        "/srv/ceph/share-all/aomip/htc2022_test_data/htc2022_07b_full", 60
+    )
+    x_shape = np.array([512, 512])
+
+    x0 = np.zeros(x_shape)
+
+    ground = tifffile.imread(
+        "/srv/ceph/share-all/aomip/htc2022_ground_truth/htc2022_07b_recon.tif"
+    )
+
+    x0 = np.zeros(x_shape)
+
+    nmax = 100
+
+    for tau in np.logspace(-3, 6, 10):
+        img = ADMM(A, sino, x0, nmax=nmax).TV_isotropic(tau=tau)
+        fig, ax = plt.subplots(1, 1)
+        ax.imshow(img, cmap="gray")
+        ax.axis("off")
+        ax.set_title(
+            "tau = {:.0e}".format(tau)
+            + ", score = {:.4f}".format(calculate_score(segment(img), segment(ground)))
+        )
+        fig.tight_layout()
+        fig.savefig("./homework/hw07/3_tau_{:.0e}_iso.png".format(tau))
+
+        img = ADMM(A, sino, x0, nmax=nmax).TV_anisotropic(tau=tau)
+        fig, ax = plt.subplots(1, 1)
+        ax.imshow(img, cmap="gray")
+        ax.axis("off")
+        ax.set_title(
+            "tau = {:.0e}".format(tau)
+            + ", score = {:.4f}".format(calculate_score(segment(img), segment(ground)))
+        )
+        fig.tight_layout()
+        fig.savefig("./homework/hw07/3_tau_{:.0e}_aniso.png".format(tau))
+    return
 
 
 def test_all():
@@ -67,4 +101,5 @@ def test_all():
 
 
 if __name__ == "__main__":
-    test_ADMM_LASSO()
+    test_ADMM_TV()
+    

@@ -43,7 +43,12 @@ class ProximalOperators:
         """
         if sigma is not None:
             self.sigma = sigma
-        return (1 - self.l * self.sigma / np.maximum(np.linalg.norm(x), self.l)) * x
+        y = np.zeros_like(x)
+        for i in range(x.shape[1]):
+            y[:, i] = (
+                1 - self.l * self.sigma / np.maximum(np.linalg.norm(x[:, i]), self.l)
+            ) * x[:, i]
+        return y
 
     def l11(self, x, sigma=None):
         """

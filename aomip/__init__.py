@@ -7,7 +7,7 @@ from .GaussianFilter import *
 from .GradientDescentClass import *
 from .IterativeShrinkageThresholdingAlgorithm import *
 from .LandweberClass import *
-from .LinearADMM import *
+from .LinearADMM import ADMM
 from .LowDoseRead import *
 from .NegativeLogTransform import *
 from .Noise import *
