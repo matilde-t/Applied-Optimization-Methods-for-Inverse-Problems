@@ -1,5 +1,6 @@
 import numpy as np
 import scipy as sp
+from .FitCircle import fitCircle
 
 
 class GD:
@@ -15,6 +16,7 @@ class GD:
         BB1=False,
         BB2=False,
         verbose=False,
+        circle=False,
     ):
         self.A = A
         self.b = b
@@ -26,6 +28,7 @@ class GD:
         self.BB1 = BB1
         self.BB2 = BB2
         self.verbose = verbose
+        self.circle = circle
 
     def gradDesc(self, df, f=None, x0=None):
         """
@@ -50,6 +53,8 @@ class GD:
                 l = self.backtracking(df, f, x0)
             ## update rule
             x = x0 - l * df(x0)
+            if self.circle:
+                x = fitCircle(x.reshape(shape), 200)
             ##
             if self.BB1:
                 s = x - x0

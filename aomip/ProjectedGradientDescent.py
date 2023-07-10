@@ -1,5 +1,5 @@
 import numpy as np
-
+from .FitCircle import fitCircle
 
 class PGD:
     def __init__(
@@ -16,6 +16,7 @@ class PGD:
         BB1=False,
         BB2=False,
         verbose=False,
+        circle=False,
     ):
         self.A = A
         self.b = b
@@ -29,6 +30,7 @@ class PGD:
         self.BB1 = BB1
         self.BB2 = BB2
         self.verbose = verbose
+        self.circle = circle
 
     def PGD(self, df, f=None, x0=None):
         """
@@ -53,6 +55,8 @@ class PGD:
                 l = self.backtracking(df, f, x0)
             ## update rule
             x = self.proj(x0 - l * df(x0), self.c)
+            if self.circle:
+                x = fitCircle(x.reshape(shape), 200)
             ##
             if self.BB1:
                 s = x - x0
