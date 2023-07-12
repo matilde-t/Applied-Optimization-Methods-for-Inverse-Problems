@@ -19,4 +19,5 @@ from .ProximalGradientMethod import *
 from .ProximalOperators import *
 from .ProximalOptimizedGradientMethod import *
 from .Slicing import *
+from .SubgradientMethod import *
 from .XrayOperator import *

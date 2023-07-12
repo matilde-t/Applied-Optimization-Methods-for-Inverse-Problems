@@ -1,15 +1,3 @@
-# import numpy as np
-# from PIL import Image, ImageDraw
-
-
-# def box(img, border):
-#     img[0:border, :] = 0
-#     img[-border:, :] = 0
-#     img[:, 0:border] = 0
-#     img[:, -border:] = 0
-#     return img.flatten()
-
-
 import cv2
 import numpy as np
 

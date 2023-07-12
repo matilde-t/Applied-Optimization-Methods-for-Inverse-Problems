@@ -11,7 +11,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 def test():
     x_shape = np.array([512, 512])
     x0 = np.zeros(x_shape)
-    nmax = 10
+    nmax = 100
 
     # Helsinki challenge
     sino, A = load_htc2022data(
@@ -61,58 +61,60 @@ def test():
 
     print(scores)
 
-    # Low dose dataset
-    _, _, ground = load_lowdose_data(
-        "/srv/ceph/share-all/aomip/mayo_clinical/out/L067_flat_fan_projections_fd.tif",
-        10,
-    )
-    sino, A, img = load_lowdose_data(
-        "/srv/ceph/share-all/aomip/mayo_clinical/out/L067_flat_fan_projections_qd.tif",
-        10,
-    )
+    # # Low dose dataset
+    # nmax = 100
+    # 
+    # _, _, ground = load_lowdose_data(
+    #     "/srv/ceph/share-all/aomip/mayo_clinical/out/L067_flat_fan_projections_fd.tif",
+    #     10,
+    # )
+    # sino, A, img = load_lowdose_data(
+    #     "/srv/ceph/share-all/aomip/mayo_clinical/out/L067_flat_fan_projections_qd.tif",
+    #     10,
+    # )
 
-    fig, ax = plt.subplots()
-    ax.imshow(img, cmap="gray")
-    ax.set_title(
-        "Filtered backprojection, score = {:.4f}".format(
-            calculate_score(segment(img), segment(ground))
-        )
-    )
-    fig.savefig("./homework/hw08/presentation/low_FBP.png")
+    # fig, ax = plt.subplots()
+    # ax.imshow(img, cmap="gray")
+    # ax.set_title(
+    #     "Filtered backprojection, score = {:.4f}".format(
+    #         calculate_score(segment(img), segment(ground))
+    #     )
+    # )
+    # fig.savefig("./homework/hw08/presentation/low_FBP.png")
 
-    solvers = {}
-    solvers["GD"] = GD(A, sino, x0, nmax=nmax)
-    solvers["GD_backtrack"] = GD(A, sino, x0, nmax=nmax, backtrack=True)
-    solvers["GD_BB1"] = GD(A, sino, x0, nmax=nmax, BB1=True)
-    solvers["GD_BB2"] = GD(A, sino, x0, nmax=nmax, BB2=True)
-    solvers["ISTA"] = ISTA(A, sino, x0, nmax=nmax)
-    solvers["ISTA_backtrack"] = ISTA(A, sino, x0, nmax=nmax, backtrack=True)
-    solvers["ISTA_BB1"] = ISTA(A, sino, x0, nmax=nmax, BB1=True)
-    solvers["ISTA_BB2"] = ISTA(A, sino, x0, nmax=nmax, BB2=True)
-    solvers["OGM"] = OGM1(A, sino, x0, nmax=nmax)
-    solvers["OGM_nonnegative"] = OGM1(A, sino, x0, nmax=nmax, nonneg=True)
-    solvers["PGD"] = PGD(A, sino, x0, nmax=nmax)
-    solvers["PGD_backtrack"] = PGD(A, sino, x0, nmax=nmax, backtrack=True)
-    solvers["PGD_BB1"] = PGD(A, sino, x0, nmax=nmax, BB1=True)
-    solvers["PGD_BB2"] = PGD(A, sino, x0, nmax=nmax, BB2=True)
+    # solvers = {}
+    # solvers["GD"] = GD(A, sino, x0, nmax=nmax)
+    # solvers["GD_backtrack"] = GD(A, sino, x0, nmax=nmax, backtrack=True)
+    # solvers["GD_BB1"] = GD(A, sino, x0, nmax=nmax, BB1=True)
+    # solvers["GD_BB2"] = GD(A, sino, x0, nmax=nmax, BB2=True)
+    # solvers["ISTA"] = ISTA(A, sino, x0, nmax=nmax)
+    # solvers["ISTA_backtrack"] = ISTA(A, sino, x0, nmax=nmax, backtrack=True)
+    # solvers["ISTA_BB1"] = ISTA(A, sino, x0, nmax=nmax, BB1=True)
+    # solvers["ISTA_BB2"] = ISTA(A, sino, x0, nmax=nmax, BB2=True)
+    # solvers["OGM"] = OGM1(A, sino, x0, nmax=nmax)
+    # solvers["OGM_nonnegative"] = OGM1(A, sino, x0, nmax=nmax, nonneg=True)
+    # solvers["PGD"] = PGD(A, sino, x0, nmax=nmax)
+    # solvers["PGD_backtrack"] = PGD(A, sino, x0, nmax=nmax, backtrack=True)
+    # solvers["PGD_BB1"] = PGD(A, sino, x0, nmax=nmax, BB1=True)
+    # solvers["PGD_BB2"] = PGD(A, sino, x0, nmax=nmax, BB2=True)
 
-    scores = {}
+    # scores = {}
 
-    for key, solver in solvers.items():
-        img = solver.leastSquares()
-        scores[key] = "{:.4f}".format(calculate_score(segment(img), segment(ground)))
-        fig, ax = plt.subplots()
-        ax.imshow(img, cmap="gray")
-        ax.set_title(key + ", score = " + scores[key])
-        fig.savefig("./homework/hw08/presentation/low_{}.png".format(key))
-        plt.close()
+    # for key, solver in solvers.items():
+    #     img = solver.leastSquares()
+    #     scores[key] = "{:.4f}".format(calculate_score(segment(img), segment(ground)))
+    #     fig, ax = plt.subplots()
+    #     ax.imshow(img, cmap="gray")
+    #     ax.set_title(key + ", score = " + scores[key])
+    #     fig.savefig("./homework/hw08/presentation/low_{}.png".format(key))
+    #     plt.close()
 
-    fig, ax = plt.subplots()
-    ax.imshow(ground, cmap="gray")
-    ax.set_title("Ground truth")
-    fig.savefig("./homework/hw08/presentation/low_ground.png")
+    # fig, ax = plt.subplots()
+    # ax.imshow(ground, cmap="gray")
+    # ax.set_title("Ground truth")
+    # fig.savefig("./homework/hw08/presentation/low_ground.png")
 
-    print(scores)
+    # print(scores)
     return
 
 

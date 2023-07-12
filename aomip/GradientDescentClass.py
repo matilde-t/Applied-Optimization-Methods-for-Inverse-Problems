@@ -54,7 +54,7 @@ class GD:
             ## update rule
             x = x0 - l * df(x0)
             if self.circle:
-                x = fitCircle(x.reshape(shape), 200)
+                x = fitCircle(x.reshape(shape), 178)
             ##
             if self.BB1:
                 s = x - x0

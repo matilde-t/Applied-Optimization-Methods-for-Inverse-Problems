@@ -14,7 +14,6 @@ class ADMM:
         mu=1,
         tau=1,
         nmax=1000,
-        sigma=1,
     ):
         self.A = A
         self.b = b
@@ -24,7 +23,6 @@ class ADMM:
         self.mu = mu
         self.tau = tau
         self.nmax = nmax
-        self.sigma = sigma
 
     def ADMM(self):
         """
@@ -55,22 +53,18 @@ class ADMM:
 
         return x0.reshape(shape)
 
-    def LASSO(self, tau=None, beta=1, sigma=1):
-        if sigma is not None:
-            self.sigma = sigma
-        self.prox_f = PO(l=beta, sigma=self.sigma).l11
-        self.prox_g = PO(
-            prox_g=PO(sigma=self.sigma).l2, y=self.b, sigma=self.sigma
-        ).translation
+    def LASSO(self, tau=None, beta=1):
         norm = self.powerIteration()
         if tau is not None:
             self.tau = tau
         self.mu = 0.95 * self.tau / norm
+        self.prox_f = PO(l=beta, sigma=self.mu).l11
+        self.prox_g = PO(
+            prox_g=PO(sigma=self.tau).l2, y=self.b, sigma=self.tau
+        ).translation
         return self.ADMM()
 
-    def TV_anisotropic(self, tau=None, beta=1, sigma=1):
-        if sigma is not None:
-            self.sigma = sigma
+    def TV_anisotropic(self, tau=None, beta=1):
         if tau is not None:
             self.tau = tau
         norm = 1e7  # self.powerIteration()
@@ -78,16 +72,14 @@ class ADMM:
         K = StackedOperator([self.A, FirstDerivative()])
         self.A = K
         h_prox = [
-            PO(prox_g=PO(sigma=sigma).l21, y=self.b, sigma=sigma).translation,
-            PO(l=beta, sigma=sigma).l11,
+            PO(prox_g=PO(sigma=self.tau).l21, y=self.b, sigma=self.tau).translation,
+            PO(l=beta, sigma=self.mu).l11,
         ]
-        self.prox_f = PO(sigma=sigma).constant
-        self.prox_g = prox_sep(h_prox, sigma=sigma).prox
+        self.prox_f = PO(sigma=self.mu).constant
+        self.prox_g = prox_sep(h_prox, sigma=self.tau).prox
         return self.ADMM()
 
-    def TV_isotropic(self, tau=None, beta=1, sigma=1):
-        if sigma is not None:
-            self.sigma = sigma
+    def TV_isotropic(self, tau=None, beta=1):
         if tau is not None:
             self.tau = tau
         norm = 1e7  # self.powerIteration()
@@ -95,11 +87,11 @@ class ADMM:
         K = StackedOperator([self.A, FirstDerivative()])
         self.A = K
         h_prox = [
-            PO(prox_g=PO(sigma=sigma).l21, y=self.b, sigma=sigma).translation,
-            PO(l=beta, sigma=sigma).l21,
+            PO(prox_g=PO(sigma=self.tau).l21, y=self.b, sigma=self.tau).translation,
+            PO(l=beta, sigma=self.mu).l21,
         ]
-        self.prox_f = PO(sigma=sigma).constant
-        self.prox_g = prox_sep(h_prox, sigma=sigma).prox
+        self.prox_f = PO(sigma=self.mu).constant
+        self.prox_g = prox_sep(h_prox, sigma=self.tau).prox
         return self.ADMM()
 
     def powerIteration(self):
