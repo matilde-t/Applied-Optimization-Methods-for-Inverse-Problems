@@ -1,5 +1,6 @@
 import numpy as np
 import scipy as sp
+from .FitCircle import fitCircle
 
 
 class ISTA:
@@ -16,6 +17,8 @@ class ISTA:
         BB1=False,
         BB2=False,
         verbose=False,
+        circle=False,
+        nonneg=False,
     ):
         self.A = A
         self.b = b
@@ -28,6 +31,8 @@ class ISTA:
         self.BB1 = BB1
         self.BB2 = BB2
         self.verbose = verbose
+        self.circle = circle
+        self.nonneg = nonneg
 
     def ISTA(self, df, f=None, x0=None):
         """
@@ -52,6 +57,10 @@ class ISTA:
                 l = self.backtracking(df, f, x0)
             ## update rule
             x = soft(x0 - l * df(x0), self.beta * l)
+            if self.circle:
+                x = fitCircle(x.reshape(shape), 178)
+            if self.nonneg:
+                x = np.maximum(x, 0)
             ##
             if self.BB1:
                 s = x - x0
